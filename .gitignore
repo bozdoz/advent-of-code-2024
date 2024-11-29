@@ -1,0 +1,10 @@
+target/
+
+# we're not doing anything serious here
+Cargo.lock
+
+# as requested by topaz
+input.txt
+
+# Mac OS
+.DS_Store

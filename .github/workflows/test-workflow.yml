@@ -1,0 +1,21 @@
+name: TestWorkflow
+
+on: 
+  push: 
+    branches: 
+      - master
+    paths-ignore:
+      - "**/*.md"
+      - "*.sh"
+      - "Dockerfile"
+
+jobs:
+  test:
+    container:
+      image: rust:1.83-slim-bookworm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: cargo test
+
+    

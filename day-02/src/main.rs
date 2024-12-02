@@ -19,7 +19,7 @@ fn part_one(reports: &Vec<Vec<isize>>) -> usize {
 
             let diff = iter.next().expect("first") - iter.next().expect("second");
 
-            if diff == 0 {
+            if diff == 0 || diff.abs() > 3 {
                 return None;
             }
 
@@ -84,6 +84,14 @@ mod tests {
     fn test_parser() {
         assert_eq!(parse_data("1 2 3 4
 5 6 7 8"), vec![vec![1, 2, 3, 4], vec![5, 6, 7, 8]]);
+    }
+
+    #[test]
+    fn test_reddit() {
+        let data = parse_data("1 9");
+        let ans = part_one(&data);
+
+        assert_eq!(ans, 0);
     }
 
     #[test]

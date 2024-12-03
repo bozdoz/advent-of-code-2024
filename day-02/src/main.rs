@@ -57,40 +57,25 @@ fn part_two(reports: &Vec<Vec<isize>>) -> usize {
     reports
         .iter()
         .filter_map(|x| {
-            if let Some(index) = has_issues(x) {
-                // try again without the index
+            // SUPER ULTRA LAZY just iterate everything...
+            for i in 0..x.len() {
                 // WOW: rust is difficult to fight with
                 let clone: Vec<isize> = x
                     .iter()
                     .enumerate()
-                    .filter_map(|(i, v)| {
-                        if i == (index as usize) {
+                    .filter_map(|(j, v)| {
+                        if i == j {
                             return None;
                         }
                         Some(*v)
                     })
                     .collect();
 
-                if has_issues(&clone).is_some() {
-                    // LAZY
-                    // try one last time with the OTHER index
-                    let clone: Vec<isize> = x
-                        .iter()
-                        .enumerate()
-                        .filter_map(|(i, v)| {
-                            if i == ((index - 1) as usize) {
-                                return None;
-                            }
-                            Some(*v)
-                        })
-                        .collect();
-
-                    if has_issues(&clone).is_some() {
-                        return None;
-                    }
+                if has_issues(&clone).is_none() {
+                    return Some(x);
                 }
             }
-            Some(x)
+            None
         })
         .count()
 }

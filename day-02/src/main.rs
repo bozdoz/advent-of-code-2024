@@ -16,16 +16,16 @@ fn has_issues(report: &Vec<isize>) -> Option<isize> {
 
     let diff = iter.next().expect("first") - iter.next().expect("second");
 
-    if diff == 0 || diff.abs() > 3 {
+    if diff == 0 {
         return Some(1);
     }
 
     let order = if diff < 0 { Ordering::Less } else { Ordering::Greater };
 
-    // get second again
-    let mut iter = report.iter().skip(1);
+    // reset the iterator
+    let mut iter = report.iter();
     let mut current = iter.next().expect("we just used this");
-    let mut i = 2;
+    let mut i = 1;
 
     while let Some(a) = iter.next() {
         let diff = current.abs_diff(*a);
@@ -148,12 +148,25 @@ mod tests {
     }
 
     #[test]
-    fn test_initial() {
+    fn test_one_bad() {
+        assert_eq!(part_two(&parse_data("1 2 8 9")), 0);
+        assert_eq!(part_two(&parse_data("9 1 2 3 9")), 0);
         assert_eq!(part_two(&parse_data("9 1 2 3")), 1);
         assert_eq!(part_two(&parse_data("1 9 2 3")), 1);
         assert_eq!(part_two(&parse_data("1 2 9 3")), 1);
         assert_eq!(part_two(&parse_data("1 2 3 9")), 1);
-        assert_eq!(part_two(&parse_data("1 5 6")), 1);
+        assert_eq!(part_two(&parse_data("3 2 1 9")), 1);
+        assert_eq!(part_two(&parse_data("3 2 9 1")), 1);
+        assert_eq!(part_two(&parse_data("3 9 2 1")), 1);
+        assert_eq!(part_two(&parse_data("9 3 2 1")), 1);
+        assert_eq!(part_two(&parse_data("1 1 3 4")), 1);
+        assert_eq!(part_two(&parse_data("1 2 2 4")), 1);
+        assert_eq!(part_two(&parse_data("1 2 3 3")), 1);
+        assert_eq!(part_two(&parse_data("3 2 1 1")), 1);
+        assert_eq!(part_two(&parse_data("3 2 2 1")), 1);
+        assert_eq!(part_two(&parse_data("3 3 2 1")), 1);
+        assert_eq!(part_two(&parse_data("1 3 2 4")), 1);
+        assert_eq!(part_two(&parse_data("1 4 2 7")), 1);
     }
 
     #[test]

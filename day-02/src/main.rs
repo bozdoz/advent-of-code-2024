@@ -11,43 +11,88 @@ fn parse_data(data: &str) -> Vec<Vec<isize>> {
         .collect()
 }
 
+fn has_issues(report: &Vec<isize>) -> Option<isize> {
+    let mut iter = report.iter();
+
+    let diff = iter.next().expect("first") - iter.next().expect("second");
+
+    if diff == 0 || diff.abs() > 3 {
+        return Some(1);
+    }
+
+    let order = if diff < 0 { Ordering::Less } else { Ordering::Greater };
+
+    // get second again
+    let mut iter = report.iter().skip(1);
+    let mut current = iter.next().expect("we just used this");
+    let mut i = 2;
+
+    while let Some(a) = iter.next() {
+        let diff = current.abs_diff(*a);
+        // don't need diff < 0 because it's covered in the `cmp`
+        if diff > 3 || current.cmp(a) != order {
+            return Some(i);
+        }
+        current = a;
+        i += 1;
+    }
+
+    // no issues
+    None
+}
+
 fn part_one(reports: &Vec<Vec<isize>>) -> usize {
     reports
         .iter()
         .filter_map(|x| {
-            let mut iter = x.iter();
-
-            let diff = iter.next().expect("first") - iter.next().expect("second");
-
-            if diff == 0 || diff.abs() > 3 {
+            if has_issues(x).is_some() {
                 return None;
             }
-
-            let order = if diff < 0 { Ordering::Less } else { Ordering::Greater };
-
-            // get second again
-            let mut iter = x.iter().skip(1);
-            let mut current = iter.next().expect("we just used this");
-
-            while let Some(a) = iter.next() {
-                let diff = current.abs_diff(*a);
-                // don't need diff < 0 because it's covered in the `cmp`
-                if diff > 3 || current.cmp(a) != order {
-                    if current.cmp(a) != order {
-                        println!("{:?} {} {}", x, current, a);
-                    }
-                    return None;
-                }
-                current = a;
-            }
-
             Some(x)
         })
         .count()
 }
 
-fn part_two() -> usize {
-    0
+fn part_two(reports: &Vec<Vec<isize>>) -> usize {
+    reports
+        .iter()
+        .filter_map(|x| {
+            if let Some(index) = has_issues(x) {
+                // try again without the index
+                // WOW: rust is difficult to fight with
+                let clone: Vec<isize> = x
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, v)| {
+                        if i == (index as usize) {
+                            return None;
+                        }
+                        Some(*v)
+                    })
+                    .collect();
+
+                if has_issues(&clone).is_some() {
+                    // LAZY
+                    // try one last time with the OTHER index
+                    let clone: Vec<isize> = x
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(i, v)| {
+                            if i == ((index - 1) as usize) {
+                                return None;
+                            }
+                            Some(*v)
+                        })
+                        .collect();
+
+                    if has_issues(&clone).is_some() {
+                        return None;
+                    }
+                }
+            }
+            Some(x)
+        })
+        .count()
 }
 
 fn main() {
@@ -65,7 +110,7 @@ fn main() {
 
     if two {
         let now = Instant::now();
-        let ans = part_two();
+        let ans = part_two(&data);
         println!("Part two: {:?} {:?}", ans, now.elapsed());
     }
 
@@ -103,9 +148,19 @@ mod tests {
     }
 
     #[test]
-    fn test_part_two() {
-        let ans = part_two();
+    fn test_initial() {
+        assert_eq!(part_two(&parse_data("9 1 2 3")), 1);
+        assert_eq!(part_two(&parse_data("1 9 2 3")), 1);
+        assert_eq!(part_two(&parse_data("1 2 9 3")), 1);
+        assert_eq!(part_two(&parse_data("1 2 3 9")), 1);
+        assert_eq!(part_two(&parse_data("1 5 6")), 1);
+    }
 
-        assert_eq!(ans, 0);
+    #[test]
+    fn test_part_two() {
+        let data = parse_data(&EXAMPLE);
+        let ans = part_two(&data);
+
+        assert_eq!(ans, 4);
     }
 }

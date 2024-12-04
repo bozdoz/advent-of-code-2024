@@ -44,12 +44,7 @@ fn has_issues(report: &Vec<isize>) -> Option<isize> {
 fn part_one(reports: &Vec<Vec<isize>>) -> usize {
     reports
         .iter()
-        .filter_map(|x| {
-            if has_issues(x).is_some() {
-                return None;
-            }
-            Some(x)
-        })
+        .filter(|x| { has_issues(x).is_none() })
         .count()
 }
 
@@ -160,5 +155,86 @@ mod tests {
         let ans = part_two(&data);
 
         assert_eq!(ans, 4);
+    }
+
+    fn has_issues_test_failed(report: &Vec<isize>) -> Option<isize> {
+        let mut iter = report.iter();
+
+        let diff = iter.next().expect("first") - iter.next().expect("second");
+
+        if diff == 0 || diff.abs() > 3 {
+            return Some(1);
+        }
+
+        let order = if diff < 0 { Ordering::Less } else { Ordering::Greater };
+
+        // get second again
+        let mut iter = report.iter();
+        let mut current = iter.next().expect("we just used this");
+        let mut i = 1;
+
+        while let Some(a) = iter.next() {
+            let diff = current.abs_diff(*a);
+            // don't need diff < 0 because it's covered in the `cmp`
+            if diff > 3 || current.cmp(a) != order {
+                return Some(i);
+            }
+            current = a;
+            i += 1;
+        }
+
+        // no issues
+        None
+    }
+
+    fn part_two_test_failed(reports: &Vec<Vec<isize>>) -> usize {
+        reports
+            .iter()
+            .filter_map(|x| {
+                if let Some(index) = has_issues_test_failed(x) {
+                    dbg!(index);
+                    // try again without the index
+                    // WOW: rust is difficult to fight with
+                    let clone: Vec<isize> = x
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(i, v)| {
+                            if i == (index as usize) {
+                                return None;
+                            }
+                            Some(*v)
+                        })
+                        .collect();
+
+                    if has_issues_test_failed(dbg!(&clone)).is_some() {
+                        dbg!(index - 1);
+                        // LAZY
+                        // try one last time with the OTHER index
+                        let clone: Vec<isize> = x
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(i, v)| {
+                                if i == ((index - 1) as usize) {
+                                    return None;
+                                }
+                                Some(*v)
+                            })
+                            .collect();
+
+                        if has_issues_test_failed(dbg!(&clone)).is_some() {
+                            return None;
+                        }
+                    }
+                }
+                println!("{:?}", x);
+                Some(x)
+            })
+            .count()
+    }
+
+    #[test]
+    #[ignore]
+    fn test_failed_part_two() {
+        assert_eq!(part_two_test_failed(&parse_data("47 45 46 47 49")), 1);
     }
 }

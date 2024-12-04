@@ -1,0 +1,8 @@
+[package]
+name = "day-03"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lib = { version = "0.1.0", path = "../lib" }
+regex = "1.11.1"

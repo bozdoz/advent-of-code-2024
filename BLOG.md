@@ -1,5 +1,71 @@
 # What Am I Learning Each Day?
 
+### Day 4
+
+**Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
+
+**Time: 0.5 hrs**
+
+**Run Time: 2ms**
+
+I did today completely on [Rust Playground](https://play.rust-lang.org/).  It seemed very straight forward, especially given I remembered the issues I had last year with Grid/Cell iteration `Vec<Vec<_>>`.  I did it all within a single main function, without tests, then copied them over here for source control, adding tests, and splitting out functions and `struct`'s.  It did make me think I could save some amount of time by sticking to simple functions, but I'd rather do things that might better represent a real world app.
+
+I thought the iterations were clean: I found all `X`'s and then iterated directions repeatedly to see if all letters matched.
+
+```rust
+// (r, c) differences, clockwise
+const DIRS: &'static [(isize, isize)] = &[
+    (-1, 0), // top
+    (-1, 1), // tr
+    (0, 1), // right
+    (1, 1), // br
+    (1, 0), // bottom
+    (1, -1), // bl
+    (0, -1), // left
+    (-1, -1), // tl
+];
+```
+
+I find the `&'static` lifetime declaration a little annoying, but it works fine.
+
+```rust
+for dir in DIRS {
+    let mut nextr = r;
+    let mut nextc = c;
+
+    for &ch in SEARCH {
+        nextr += dir.0;
+        nextc += dir.1;
+```
+
+Here I increment row and column and keep checking for the next letter in `SEARCH`.
+
+Part 2 was similar thoough had some extra logic to determine if exactly `S` and `M` are matched around the `A`'s.
+
+```rust
+// looking for an X shape
+const DIAGONALS: &'static [(isize, isize)] = &[
+    (-1, -1), // tl
+    (1, 1), // br
+    (-1, 1), // tr
+    (1, -1), // bl
+];
+
+for dirs in DIAGONALS.chunks(2) {
+    let mut acceptable = vec!['S', 'M'];
+    // ...
+    // ...
+    // ...
+    let ch = &grid.cells[nextr as usize][nextc as usize];
+
+    if acceptable.contains(ch) {
+        // remove from acceptable and search next diagonal
+        acceptable.retain(|x| x != ch);
+    }
+```
+
+I think it's the first time I've used `chunks` and I'm not sure if it's the first time I've used `retain`, though I remember it's a difficult method to remember (because I'd prefer something like `remove`).
+
 ### Day 3
 
 **Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**

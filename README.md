@@ -16,4 +16,6 @@ New: `./createDay.sh 02`
 
 - [Reddit](https://reddit.com/r/adventofcode)
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+- [Rust Playground](https://play.rust-lang.org/)
 - [Codeium](https://codeium.com/)
+

@@ -30,7 +30,8 @@ touch ./src/input.txt
 
 cat > src/main.rs <<EOF
 #![allow(unused)]
-use std::{time::Instant, fs};
+
+use std::{ time::Instant, fs };
 use lib::get_part;
 
 fn part_one() -> usize {

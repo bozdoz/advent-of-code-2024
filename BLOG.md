@@ -1,5 +1,56 @@
 # What Am I Learning Each Day?
 
+### Day 5
+
+**Difficulty: 4/10 ★★★★☆☆☆☆☆☆**
+
+**Time: 1 hrs**
+
+**Run Time: 134ms**
+
+Both parts had a similar logic where I searched for the second number and then searched after it to see if the first was incorrectly placed.
+
+During parsing I ran into annoying lifetime errors, but I seemed to be able to solve them after some DuckDuckGo searches, and used `where` I think for the first time:
+
+```rust
+struct SafetyManual<'a> {
+    rules: Vec<(&'a str, &'a str)>,
+    pages: Vec<Vec<&'a str>>,
+}
+
+impl<'a> SafetyManual<'a> {
+    // first where; I don't understand it
+    fn new<'b>(data: &'b str) -> Self where 'b: 'a {
+```
+
+I think there were too many references going on and maybe it didn't know which was which, but I think this means that the output lives as long as the input?
+
+Without it it complains: 
+
+> explicit lifetime required in the type of `data`
+
+I decided not to parse the numbers and leave them as `&str` and maybe that was more costly than just parsing them immediately.  
+
+I looked up a bubble sort in rust, and used that to re-order the pages based on the rules.
+
+I've started adding reference symbols in the variable declaration instead of where I need them, and today I think was my first time using `swap`:
+
+```rust
+'outer: for &(first, second) in manual.rules.iter() {
+    for i in 0..page.len() {
+        if page[i] == first {
+            continue 'outer;
+        }
+        if page[i] == second {
+            // look for first and swap
+            for j in i..page.len() {
+                if page[j] == first {
+                    page.swap(i, j);
+```
+
+It's a lot of loops and conditions, but it runs quick enough at `134ms`.
+
+
 ### Day 4
 
 **Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
@@ -10,7 +61,44 @@
 
 I did today completely on [Rust Playground](https://play.rust-lang.org/).  It seemed very straight forward, especially given I remembered the issues I had last year with Grid/Cell iteration `Vec<Vec<_>>`.  I did it all within a single main function, without tests, then copied them over here for source control, adding tests, and splitting out functions and `struct`'s.  It did make me think I could save some amount of time by sticking to simple functions, but I'd rather do things that might better represent a real world app.
 
-I thought the iterations were clean: I found all `X`'s and then iterated directions repeatedly to see if all letters matched.
+One thing I noticed is that when I moved to my typical structure, I couldn't easily create the struct I needed for the grid.
+
+```rust
+impl Grid {
+    fn new(data: &str) -> Self {
+        let cells: Vec<_> = data
+            .lines()
+            .map(|l| { l.chars().collect::<Vec<_>>() })
+            .collect();
+
+        // surprisingly not valid if added directly to the `Self` block below
+        let height = cells.len() as isize;
+        let width = cells[0].len() as isize;
+
+        Self {
+            cells,
+            height,
+            width,
+        }
+    }
+}
+```
+
+For some reason I think related to lifetimes, I couldn't do this:
+
+```rust
+Self {
+    cells,
+    height: cells.len() as isize,
+    width: cells[0].len() as isize,
+}
+```
+
+The error is:
+
+> borrow of moved value: `cells`
+
+I thought the iterations today were clean: I found all `X`'s and then iterated directions repeatedly to see if all letters matched.
 
 ```rust
 // (r, c) differences, clockwise

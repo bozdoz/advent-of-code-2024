@@ -1,5 +1,41 @@
 # What Am I Learning Each Day?
 
+### Day 7
+
+**Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
+
+**Time: 0.5 hrs**
+
+**Run Time: 76ms**
+
+I think this is the first time I defined a closure as a function parameter:
+
+```rust
+fn is_truthy(&self, get_next: impl Fn(&mut Vec<(usize, usize)>, (usize, usize)) -> ()) -> bool
+```
+
+Which was used to deduplicate the stack (I think depth-first search) logic:
+
+```rust
+if
+    eq.is_truthy(|states: &mut Vec<(usize, usize)>, next: (usize, usize)| {
+        // same as part one
+        let acc = next.0;
+        let i = next.1;
+        let num = eq.numbers[i];
+        states.push((acc + num, i + 1));
+        states.push((acc * num, i + 1));
+
+        // adds concatenated to part two
+        let concatenated = acc * (10usize).pow(num.ilog10() + 1) + num;
+        states.push((concatenated, i + 1));
+    })
+```
+
+That concatenated line I got from reddit, but made sense to me for digit counting.
+
+Today felt like a very idiomatic rust day.
+
 ### Day 6
 
 **Difficulty: 6/10 ★★★★★★☆☆☆☆**

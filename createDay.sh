@@ -45,7 +45,7 @@ fn part_two() -> usize {
 fn main() {
     let (one, two) = get_part();
     let start = Instant::now();
-    let contents = fs::read_to_string("./src/input.txt").unwrap();
+    let data = fs::read_to_string("./src/input.txt").unwrap();
 
     if one {
         let now = Instant::now();

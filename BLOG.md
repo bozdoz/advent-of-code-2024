@@ -1,5 +1,26 @@
 # What Am I Learning Each Day?
 
+### Day 8
+
+**Difficulty: 2/10 ★★☆☆☆☆☆☆☆☆**
+
+**Time: 1 hrs**
+
+**Run Time: 500µs**
+
+I took the time to put the Grid struct into the `lib.rs` for reuse.  Today was another easy day.  Might have been my first time using the HashMap `and_modify().or_insert()` methods:
+
+```rust
+antennas
+    .entry(cell)
+    .and_modify(|e: &mut Vec<(isize, isize)>| {
+        e.push((r as isize, c as isize));
+    })
+    .or_insert(vec![(r as isize, c as isize)]);
+```
+
+Today all it was was getting the difference between every two antenna and extrapolating it further in each direction.  In the second part you also have to include the antennas, which means keeping a `HashSet`.
+
 ### Day 7
 
 **Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**

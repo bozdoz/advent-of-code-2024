@@ -1,6 +1,4 @@
-#![allow(unused)]
-
-use std::{ cell, collections::{ HashMap, HashSet }, fs, time::Instant };
+use std::{ collections::HashSet, fs, time::Instant };
 use lib::get_part;
 
 // (r, c) differences, clockwise
@@ -140,8 +138,7 @@ fn part_one(grid: &mut Grid) -> usize {
 
 fn part_two(grid: &Grid) -> usize {
     // never put an obstacle at the start
-    let start = grid.start;
-    let mut cur = start.clone();
+    let mut cur = grid.start;
     // could probably just be a 2d vec...
     let mut visited = HashSet::new();
 
@@ -175,8 +172,6 @@ fn part_two(grid: &Grid) -> usize {
             }
         }
     }
-
-    count
 }
 
 fn main() {
@@ -216,7 +211,7 @@ mod tests {
 
     #[test]
     fn test_loop() {
-        let mut grid = Grid::new(EXAMPLE);
+        let grid = Grid::new(EXAMPLE);
         let ans = grid.try_obstacle((6, 3), grid.start, 0);
 
         assert_eq!(ans, true);

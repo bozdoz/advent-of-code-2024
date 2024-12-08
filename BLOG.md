@@ -1,5 +1,85 @@
 # What Am I Learning Each Day?
 
+### Day 6
+
+**Difficulty: 6/10 ★★★★★★☆☆☆☆**
+
+**Time: 4 hrs**
+
+**Run Time: 175ms**
+
+Reused a lot of grid stuff from Day4.  I might add to a library for it to deduplicate.
+
+I thought I would be able to define a variable with the output of a block, but I wasn't able to `return` in it:
+
+```rust
+let start = {
+    let mut out = (0, 0);
+    'stupid: for (r, row) in cells.iter().enumerate() {
+        for (c, &cell) in row.iter().enumerate() {
+            if cell == '^' {
+                out = (r as isize, c as isize);
+
+                // not able to return in a block
+                break 'stupid;
+            }
+        }
+    }
+    out
+};
+```
+
+Better to rewrite it without the block anyway I guess, with a `find_map`.
+
+I did a bunch of craziness with directions, binaries, and modulus:
+
+```rust
+// (r, c) differences, clockwise
+const DIRS: &'static [(isize, isize)] = &[
+    (-1, 0), // top
+    (0, 1), // right
+    (1, 0), // bottom
+    (0, -1), // left
+];
+
+let bin = (2usize).pow((d % 4) as u32);
+let dir = DIRS[d % 4];
+```
+
+The binary was to add multiple directions to an individual visited cell; the modulus was to continue iterating the direction constant.
+
+I basically copied the same loop three times, but didn't want to deduplicate any of it.  
+
+I basically:
+
+1. looped the directions
+2. looped getting the next cell towards a given direction
+3. checked if we hit an obstacle or went off the map
+
+Part two is kind of nested, where for each cell we run the simulation as if there's an obstacle there, then keep traversing.
+
+Loop detection was simply: 
+
+
+```rust
+let mut visited = vec![vec![0; self.width as usize]; self.height as usize];
+
+// first time using mutable reference?
+let cell = &mut visited[next.0 as usize][next.1 as usize];
+
+// check if the cell has the direction we're currently moving in
+if (*cell & bin) == bin {
+    return true;
+}
+
+// add direction to the visited list
+*cell |= bin;
+```
+
+This I thought was convenient, since I only had to access the 2d array once, as a mutable reference.
+
+I kept a hashset of visited cells because each cell could either be an obstacle or not: If it was visited previously it was ignored regardless.
+
 ### Day 5
 
 **Difficulty: 4/10 ★★★★☆☆☆☆☆☆**

@@ -1,9 +1,9 @@
 name: TestWorkflow
 
-on: 
+on:
   push: 
     branches: 
-      - master
+      - main
     paths-ignore:
       - "**/*.md"
       - "*.sh"

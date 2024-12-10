@@ -1,14 +1,12 @@
 use std::{ cmp::Ordering, fs, time::Instant };
 use lib::get_part;
 
-fn parse_data(data: &str) -> Vec<Vec<isize>> {
-    data.lines()
-        .map(|x| {
-            x.split_ascii_whitespace()
-                .map(|y| { y.parse().expect("I thought this was a number") })
-                .collect()
-        })
-        .collect()
+fn parse_data(data: &str) -> impl Iterator<Item = Vec<isize>> + use<'_> {
+    data.lines().map(|x| {
+        x.split_ascii_whitespace()
+            .map(|y| { y.parse::<isize>().expect("I thought this was a number") })
+            .collect::<Vec<isize>>()
+    })
 }
 
 fn has_issues(report: &Vec<isize>) -> Option<isize> {
@@ -41,16 +39,18 @@ fn has_issues(report: &Vec<isize>) -> Option<isize> {
     None
 }
 
-fn part_one(reports: &Vec<Vec<isize>>) -> usize {
+fn part_one<I>(reports: I) -> usize
+where 
+    I: Iterator<Item = Vec<isize>> {
     reports
-        .iter()
         .filter(|x| { has_issues(x).is_none() })
         .count()
 }
 
-fn part_two(reports: &Vec<Vec<isize>>) -> usize {
+fn part_two<I>(reports: I) -> usize
+where
+    I: Iterator<Item = Vec<isize>> {
     reports
-        .iter()
         .filter_map(|x| {
             // SUPER ULTRA LAZY just iterate everything...
             for i in 0..x.len() {
@@ -80,17 +80,15 @@ fn main() {
     let start = Instant::now();
     let contents = fs::read_to_string("./src/input.txt").unwrap();
 
-    let data = parse_data(&contents);
-
     if one {
         let now = Instant::now();
-        let ans = part_one(&data);
+        let ans = part_one(parse_data(&contents));
         println!("Part one: {:?} {:?}", ans, now.elapsed());
     }
 
     if two {
         let now = Instant::now();
-        let ans = part_two(&data);
+        let ans = part_two(parse_data(&contents));
         println!("Part two: {:?} {:?}", ans, now.elapsed());
     }
 
@@ -108,51 +106,48 @@ mod tests {
     #[test]
     fn test_parser() {
         assert_eq!(parse_data("1 2 3 4
-5 6 7 8"), vec![vec![1, 2, 3, 4], vec![5, 6, 7, 8]]);
+5 6 7 8").collect::<Vec<_>>(), vec![vec![1, 2, 3, 4], vec![5, 6, 7, 8]]);
     }
 
     #[test]
     fn test_reddit() {
-        let data = parse_data("1 9");
-        let ans = part_one(&data);
+        let ans = part_one(parse_data("1 9"));
 
         assert_eq!(ans, 0);
     }
 
     #[test]
     fn test_part_one() {
-        let data = parse_data(&EXAMPLE);
-        let ans = part_one(&data);
+        let ans = part_one(parse_data(EXAMPLE));
 
         assert_eq!(ans, 2);
     }
 
     #[test]
     fn test_one_bad() {
-        assert_eq!(part_two(&parse_data("1 2 8 9")), 0);
-        assert_eq!(part_two(&parse_data("9 1 2 3 9")), 0);
-        assert_eq!(part_two(&parse_data("9 1 2 3")), 1);
-        assert_eq!(part_two(&parse_data("1 9 2 3")), 1);
-        assert_eq!(part_two(&parse_data("1 2 9 3")), 1);
-        assert_eq!(part_two(&parse_data("1 2 3 9")), 1);
-        assert_eq!(part_two(&parse_data("3 2 1 9")), 1);
-        assert_eq!(part_two(&parse_data("3 2 9 1")), 1);
-        assert_eq!(part_two(&parse_data("3 9 2 1")), 1);
-        assert_eq!(part_two(&parse_data("9 3 2 1")), 1);
-        assert_eq!(part_two(&parse_data("1 1 3 4")), 1);
-        assert_eq!(part_two(&parse_data("1 2 2 4")), 1);
-        assert_eq!(part_two(&parse_data("1 2 3 3")), 1);
-        assert_eq!(part_two(&parse_data("3 2 1 1")), 1);
-        assert_eq!(part_two(&parse_data("3 2 2 1")), 1);
-        assert_eq!(part_two(&parse_data("3 3 2 1")), 1);
-        assert_eq!(part_two(&parse_data("1 3 2 4")), 1);
-        assert_eq!(part_two(&parse_data("1 4 2 7")), 1);
+        assert_eq!(part_two(parse_data("1 2 8 9")), 0);
+        assert_eq!(part_two(parse_data("9 1 2 3 9")), 0);
+        assert_eq!(part_two(parse_data("9 1 2 3")), 1);
+        assert_eq!(part_two(parse_data("1 9 2 3")), 1);
+        assert_eq!(part_two(parse_data("1 2 9 3")), 1);
+        assert_eq!(part_two(parse_data("1 2 3 9")), 1);
+        assert_eq!(part_two(parse_data("3 2 1 9")), 1);
+        assert_eq!(part_two(parse_data("3 2 9 1")), 1);
+        assert_eq!(part_two(parse_data("3 9 2 1")), 1);
+        assert_eq!(part_two(parse_data("9 3 2 1")), 1);
+        assert_eq!(part_two(parse_data("1 1 3 4")), 1);
+        assert_eq!(part_two(parse_data("1 2 2 4")), 1);
+        assert_eq!(part_two(parse_data("1 2 3 3")), 1);
+        assert_eq!(part_two(parse_data("3 2 1 1")), 1);
+        assert_eq!(part_two(parse_data("3 2 2 1")), 1);
+        assert_eq!(part_two(parse_data("3 3 2 1")), 1);
+        assert_eq!(part_two(parse_data("1 3 2 4")), 1);
+        assert_eq!(part_two(parse_data("1 4 2 7")), 1);
     }
 
     #[test]
     fn test_part_two() {
-        let data = parse_data(&EXAMPLE);
-        let ans = part_two(&data);
+        let ans = part_two(parse_data(EXAMPLE));
 
         assert_eq!(ans, 4);
     }
@@ -187,11 +182,12 @@ mod tests {
         None
     }
 
-    fn part_two_test_failed(reports: &Vec<Vec<isize>>) -> usize {
+    fn part_two_test_failed<I>(reports: I) -> usize
+    where 
+        I: Iterator<Item = Vec<isize>> {
         reports
-            .iter()
             .filter_map(|x| {
-                if let Some(index) = has_issues_test_failed(x) {
+                if let Some(index) = has_issues_test_failed(&x) {
                     dbg!(index);
                     // try again without the index
                     // WOW: rust is difficult to fight with
@@ -235,6 +231,6 @@ mod tests {
     #[test]
     #[ignore]
     fn test_failed_part_two() {
-        assert_eq!(part_two_test_failed(&parse_data("47 45 46 47 49")), 1);
+        assert_eq!(part_two_test_failed(parse_data("47 45 46 47 49")), 1);
     }
 }

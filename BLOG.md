@@ -1,5 +1,96 @@
 # What Am I Learning Each Day?
 
+### Day 9
+
+**Difficulty: 3/10 ★★★☆☆☆☆☆☆☆**
+
+**Time: 1 hrs**
+
+**Run Time: 300ms**
+
+First time using `repeat_n`, and maybe `cycle`.
+
+Tried not to overthink the data structure too much.  I figured I could just make a large 1-dimensional array, so I tried that first with `cargo run`, and it worked fine so I went with that.
+
+```rust
+let mut out: Vec<Option<usize>> = vec![];
+```
+
+Each char was iterated within a `cycle` loop as to whether it was a file or space between:
+
+```rust
+for &is_file in [true, false].iter().cycle() {
+```
+
+Then I used `repeat_n` to add as many items as the digit:
+
+```rust
+if is_file {
+    out.append(
+        &mut repeat_n(id, digit as usize)
+            .map(|x| Some(x))
+            .collect()
+    );
+    id += 1;
+} else {
+    // append empties
+    out.append(&mut repeat_n(None, digit as usize).collect());
+}
+```
+
+Thankfully the rust analyzer told me I needed the iterator to have `&mut` or I never would have guessed.
+
+Part one felt so clean, other than the `clone` of the data:
+
+```rust
+// move files one at a time
+let mut copy = data.clone();
+let mut s = 0;
+let mut e = data.len() - 1;
+
+loop {
+    // each numbers towards each other
+    while copy[s].is_some() {
+        s += 1;
+    }
+
+    while copy[e].is_none() {
+        e -= 1;
+    }
+
+    if e <= s {
+        break;
+    }
+
+    // s is none; e is some; swap
+    copy.swap(s, e);
+}
+
+// map_while works because there are no empty gaps in between
+return copy.iter()
+    .map_while(|&x| x)
+    .enumerate()
+    .fold(0, |acc, (i, v)| { acc + i * v })
+```
+
+I've been using `fold` a lot.  Anyway, I liked the brevity of that `loop`, and how simple it was to increment `s` and decrement `e`.
+
+Part 2 I didn't know when to increment `s`, so I just left it. 
+
+I think this is the first time using `take_while`:
+
+```rust
+let need = (0..=e)
+    .rev()
+    .take_while(|&x| { copy[x] == Some(item) })
+    .count();
+```
+
+That takes from the end, until it gets an item that isn't identical and returns the count.
+
+I pretty much fumbled my way through the rest with a bunch of print statements until I covered all the tests.
+
+
 ### Day 8
 
 **Difficulty: 2/10 ★★☆☆☆☆☆☆☆☆**
@@ -116,7 +207,6 @@ I basically:
 Part two is kind of nested, where for each cell we run the simulation as if there's an obstacle there, then keep traversing.
 
 Loop detection was simply: 
-
 
 ```rust
 let mut visited = vec![vec![0; self.width as usize]; self.height as usize];
@@ -333,6 +423,41 @@ Then I used `fold`, which I think is appropriate since `reduce` required the inp
 **Time: 2 hrs**
 
 **Run Time: 2ms**
+
+**--UPDATE--**
+
+I rewrote the data parser to return an iterator into the data instead of collecting into a 2d vec.  It didn't improve time at all.  Maybe it manages memory better.  Here's the new parser:
+
+```rust
+fn parse_data(data: &str) -> impl Iterator<Item = Vec<isize>> + use<'_> {
+    data.lines().map(|x| {
+        x.split_ascii_whitespace()
+            .map(|y| { y.parse::<isize>().expect("I thought this was a number") })
+            .collect::<Vec<isize>>()
+    })
+}
+```
+
+The rust prettier extension fails to format this now, because it cannot detect the `use` keyword: https://github.com/jinxdash/prettier-plugin-rust/issues/38
+
+This is my first time trying to return an `Iterator`, and I realized it's not the same type that I've been using; namely:
+
+```rust
+fn has_issues(report: &Vec<isize>) -> Option<isize> {
+    let mut iter: std::slice::Iter<'_, isize> = report.iter();
+```
+
+The normal `iter()` method returns a `slice::Iter`, which has methods like `clone()`, which `Iterator` doesn't have.  So, not sure why such a distinction is made here.
+
+Also if I want to pass this iterator to a function, I need to define it as such:
+
+```rust
+fn part_one<I>(reports: I) -> usize
+where 
+    I: Iterator<Item = Vec<isize>>
+```
+
+**--END UPDATE--**
 
 I got bogged down with both parts today, because the test data passed and the real data failed (both times).  The first time, it was because I checked the first two digits to determine the direction, before I tested for valid differences:
 

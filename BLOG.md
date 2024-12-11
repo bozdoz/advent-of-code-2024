@@ -1,5 +1,59 @@
 # What Am I Learning Each Day?
 
+### Day 10
+
+**Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
+
+**Time: 0.5 hrs**
+
+**Run Time: 10ms**
+
+Took some more time to update the lib Grid definition.
+
+Now I have the Grid cell values in a generic type:
+
+```rust
+pub struct Grid<T = char> {
+    pub cells: Vec<Vec<T>>,
+    pub height: isize,
+    pub width: isize,
+}
+```
+
+With two definitions for creation:
+
+```rust
+impl Grid<char> {
+    pub fn new_with_chars(data: &str) -> Self {} 
+}
+
+impl Grid<u32> {
+    pub fn new_with_u32(data: &str) -> Self {}
+}
+```
+
+And I just added a private helper to deduplicate further, since most of the grid initialization is the same.  And I copied over the getter function 
+
+This one I accidentally did part 2 before part 1, because I misread the instructions.
+
+I successfully extracted the logic from part 1 into a function, and re-used it by passing a function in each parts.
+
+```rust
+fn part_one(grid: &Grid<u32>) -> usize {
+    parts_one_and_two(grid, |complete, state| {
+        complete.insert((state[0], state[9]));
+    })
+}
+
+fn part_two(grid: &Grid<u32>) -> usize {
+    parts_one_and_two(grid, |complete, state| {
+        complete.insert(state);
+    })
+}
+```
+
+Which is basically, iterate the grid, add all the zeroes to a stack, and for each item in the stack, go through the directions.  When a stack item is complete, execute a given function, to add it to a `HashSet`.  The length of the hashset was the answer, so it all depended on which items were unique to the set.
+
 ### Day 9
 
 **Difficulty: 3/10 ★★★☆☆☆☆☆☆☆**

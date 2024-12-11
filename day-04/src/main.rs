@@ -117,7 +117,7 @@ fn main() {
     let (one, two) = get_part();
     let start = Instant::now();
     let contents = fs::read_to_string("./src/input.txt").unwrap();
-    let grid = Grid::new(&contents);
+    let grid = Grid::new_with_chars(&contents);
 
     if one {
         let now = Instant::now();
@@ -142,7 +142,7 @@ mod tests {
 
     #[test]
     fn test_part_one() {
-        let grid = Grid::new(EXAMPLE);
+        let grid = Grid::new_with_chars(EXAMPLE);
         let ans = part_one(&grid);
 
         assert_eq!(ans, 18);
@@ -150,7 +150,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let grid = Grid::new(EXAMPLE);
+        let grid = Grid::new_with_chars(EXAMPLE);
         let ans = part_two(&grid);
 
         assert_eq!(ans, 9);

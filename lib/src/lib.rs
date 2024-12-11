@@ -24,18 +24,15 @@ pub fn get_part() -> (bool, bool) {
     (hasone, hastwo)
 }
 
-pub struct Grid {
-    pub cells: Vec<Vec<char>>,
+pub struct Grid<T = char> {
+    pub cells: Vec<Vec<T>>,
     pub height: isize,
     pub width: isize,
 }
 
-impl Grid {
-    pub fn new(data: &str) -> Self {
-        let cells: Vec<_> = data
-            .lines()
-            .map(|l| { l.chars().collect::<Vec<_>>() })
-            .collect();
+impl<T> Grid<T> {
+    fn _get_grid(data: &str, mapper: impl FnMut(&str) -> Vec<T>) -> Self {
+        let cells: Vec<_> = data.lines().map(mapper).collect();
 
         // surprisingly not valid if added directly to the `Self` block below
         let height = cells.len() as isize;
@@ -46,5 +43,33 @@ impl Grid {
             height,
             width,
         }
+    }
+}
+
+impl Grid<char> {
+    pub fn new_with_chars(data: &str) -> Self {
+        Grid::_get_grid(data, |l| { l.chars().collect::<Vec<_>>() })
+    }
+}
+
+impl Grid<u32> {
+    pub fn new_with_u32(data: &str) -> Self {
+        Grid::_get_grid(data, |l| {
+            l.chars()
+                .map(|c| c.to_digit(10).unwrap())
+                .collect::<Vec<_>>()
+        })
+    }
+}
+
+// NOTE: if I wanted to dereference this, I could do:
+// where T: Copy, T: Clone
+impl<T> Grid<T> {
+    pub fn get(&self, pos: (isize, isize)) -> Option<&T> {
+        if pos.0 == -1 || pos.1 == -1 || pos.0 >= self.height || pos.1 >= self.width {
+            return None;
+        }
+
+        Some(&self.cells[pos.0 as usize][pos.1 as usize])
     }
 }

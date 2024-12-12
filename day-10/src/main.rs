@@ -2,7 +2,7 @@ use std::{ collections::HashSet, fs, time::Instant };
 use lib::{ get_part, Grid };
 
 // (r, c) differences, clockwise
-const DIRS: &'static [(isize, isize)] = &[
+const DIRS: [(isize, isize); 4] = [
     (-1, 0), // top
     (0, 1), // right
     (1, 0), // bottom
@@ -63,6 +63,7 @@ fn part_one(grid: &Grid<u32>) -> usize {
 
 fn part_two(grid: &Grid<u32>) -> usize {
     parts_one_and_two(grid, |complete, state| {
+        // each node needs to be unique
         complete.insert(state);
     })
 }

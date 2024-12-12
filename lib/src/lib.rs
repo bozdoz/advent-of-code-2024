@@ -56,7 +56,7 @@ impl Grid<u32> {
     pub fn new_with_u32(data: &str) -> Self {
         Grid::_get_grid(data, |l| {
             l.chars()
-                .map(|c| c.to_digit(10).unwrap())
+                .filter_map(|c| c.to_digit(10))
                 .collect::<Vec<_>>()
         })
     }
@@ -64,6 +64,8 @@ impl Grid<u32> {
 
 // NOTE: if I wanted to dereference this, I could do:
 // where T: Copy, T: Clone
+// Or maybe also:
+// where T: Copy + Clone
 impl<T> Grid<T> {
     pub fn get(&self, pos: (isize, isize)) -> Option<&T> {
         if pos.0 == -1 || pos.1 == -1 || pos.0 >= self.height || pos.1 >= self.width {

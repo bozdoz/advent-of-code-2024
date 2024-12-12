@@ -4,7 +4,7 @@ use std::{ time::Instant, fs };
 use lib::{ get_part, Grid };
 
 // (r, c) differences, clockwise
-const DIRS: &'static [(isize, isize)] = &[
+const DIRS: [(isize, isize); 8] = [
     (-1, 0), // top
     (-1, 1), // tr
     (0, 1), // right
@@ -15,6 +15,8 @@ const DIRS: &'static [(isize, isize)] = &[
     (-1, -1), // tl
 ];
 
+// this needs &'static or an explicit number for length of array:
+// const SEARCH: [char; 3] = ['M', 'A', 'S'];
 const SEARCH: &'static [char] = &['M', 'A', 'S'];
 
 fn part_one(grid: &Grid) -> usize {
@@ -62,7 +64,7 @@ fn part_one(grid: &Grid) -> usize {
 }
 
 // looking for an X shape
-const DIAGONALS: &'static [(isize, isize)] = &[
+const DIAGONALS: [(isize, isize); 4] = [
     (-1, -1), // tl
     (1, 1), // br
     (-1, 1), // tr

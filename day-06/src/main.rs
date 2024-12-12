@@ -2,7 +2,7 @@ use std::{ collections::HashSet, fs, time::Instant };
 use lib::get_part;
 
 // (r, c) differences, clockwise
-const DIRS: &'static [(isize, isize)] = &[
+const DIRS: [(isize, isize); 4] = [
     (-1, 0), // top
     (0, 1), // right
     (1, 0), // bottom

@@ -1,5 +1,75 @@
 # What Am I Learning Each Day?
 
+### Day 11
+
+**Difficulty: 5/10 ★★★★★☆☆☆☆☆**
+
+**Time: 2 hrs**
+
+**Run Time: 15ms**
+
+Today threw me, specifically with the wording in the puzzle:  
+
+> No matter how the stones change, their order is preserved, and they stay on their perfectly straight line.
+
+This made me think maybe I should look for a pattern in the iterations, made me think I should run the simulation on each rock at a time...
+
+Anyway, There were enough duplicate numbers in part 1's output, and none of the stones impacted any other stone, which made me think a hashmap was probably fine to use.
+
+First time using `.ok()` for the parser (it's a weird name for a method):
+
+```rust
+data.trim()
+    .split(" ")
+    .filter_map(|x| { x.parse::<usize>().ok() })
+    .collect()
+```
+
+Filter map expected an `Option`, so that works great to convert the `Result` and drop any strings that fail.
+
+First time creating a macro, and I think I get it now. I think it literally substitutes the lines inside with the use of it:
+
+```rust
+macro_rules! update_or_create {
+    ($map:expr, $key:expr, $val:expr) => {
+        {
+            $map.entry($key)
+                    .and_modify(|x| {
+                        *x += $val;
+                    })
+                    .or_insert($val);
+        }
+    };
+}
+```
+
+Now this can be used with a HashMap (though I'm not sure how to restrict types here):
+
+```rust
+let mut current: HashMap<usize, usize> = HashMap::new();
+
+for &datum in data {
+    update_or_create!(current, datum, 1);
+}
+```
+
+I think this is different, because it doesn't create/define a new function, but rather substitutes the macro at compile time.  As I mentioned above, it seemed incredibly easy to write, because it doesn't appear typesafe (though it apparently is)! :D
+
+So each iteration, I create a new hashmap, then copy the current hashmap over to the next one, then swap their memories:
+
+```rust
+mem::swap(&mut current, &mut next);
+```
+
+I think this is efficient.
+
+I used some of the same math as Day 7 to get the number of digits, which I also used to split the numbers:
+
+```rust
+// get number of digits in the number
+let digits = k.ilog10() + 1;
+```
+
 ### Day 10
 
 **Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
@@ -62,7 +132,7 @@ Which is basically, iterate the grid, add all the zeroes to a stack, and for eac
 
 **Run Time: 300ms**
 
-First time using `repeat_n`, and maybe `cycle`.
+First time using `repeat_n` (until I removed it), and maybe `cycle`.
 
 Tried not to overthink the data structure too much.  I figured I could just make a large 1-dimensional array, so I tried that first with `cargo run`, and it worked fine so I went with that.
 
@@ -93,6 +163,8 @@ if is_file {
 ```
 
 Thankfully the rust analyzer told me I needed the iterator to have `&mut` or I never would have guessed.
+
+UPDATE: I removed `repeat_n` in favor of the easier `&mut vec![None; digit as usize]`
 
 Part one felt so clean, other than the `clone` of the data:
 

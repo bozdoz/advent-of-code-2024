@@ -1,4 +1,4 @@
-use std::{ fs, iter::repeat_n, time::Instant };
+use std::{ fs, time::Instant };
 use lib::get_part;
 
 // build a full vector of all digits, and fill with Some(usize) or None to represent empty "."
@@ -11,15 +11,11 @@ fn parse_data(data: &str) -> Vec<Option<usize>> {
         if let Some(ch) = chars.next() {
             if let Some(digit) = ch.to_digit(10) {
                 if is_file {
-                    out.append(
-                        &mut repeat_n(id, digit as usize)
-                            .map(|x| Some(x))
-                            .collect()
-                    );
+                    out.append(&mut vec![Some(id); digit as usize]);
                     id += 1;
                 } else {
                     // append empties
-                    out.append(&mut repeat_n(None, digit as usize).collect());
+                    out.append(&mut vec![None; digit as usize]);
                 }
             }
         } else {

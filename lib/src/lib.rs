@@ -24,6 +24,14 @@ pub fn get_part() -> (bool, bool) {
     (hasone, hastwo)
 }
 
+// (r, c) differences, clockwise
+pub const DIRS: [(isize, isize); 4] = [
+    (-1, 0), // top
+    (0, 1), // right
+    (1, 0), // bottom
+    (0, -1), // left
+];
+
 pub struct Grid<T = char> {
     pub cells: Vec<Vec<T>>,
     pub height: isize,

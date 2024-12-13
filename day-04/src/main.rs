@@ -4,7 +4,7 @@ use std::{ time::Instant, fs };
 use lib::{ get_part, Grid };
 
 // (r, c) differences, clockwise
-const DIRS: [(isize, isize); 8] = [
+const DIRECTIS: [(isize, isize); 8] = [
     (-1, 0), // top
     (-1, 1), // tr
     (0, 1), // right
@@ -28,7 +28,7 @@ fn part_one(grid: &Grid) -> usize {
                 let r = r as isize;
                 let c = c as isize;
 
-                for dir in DIRS {
+                for dir in DIRECTIS {
                     let mut nextr = r;
                     let mut nextc = c;
 

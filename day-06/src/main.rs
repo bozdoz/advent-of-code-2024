@@ -1,13 +1,5 @@
 use std::{ collections::HashSet, fs, time::Instant };
-use lib::get_part;
-
-// (r, c) differences, clockwise
-const DIRS: [(isize, isize); 4] = [
-    (-1, 0), // top
-    (0, 1), // right
-    (1, 0), // bottom
-    (0, -1), // left
-];
+use lib::{ get_part, DIRS };
 
 struct Grid {
     cells: Vec<Vec<char>>,

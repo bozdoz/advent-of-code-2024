@@ -1,5 +1,76 @@
 # What Am I Learning Each Day?
 
+### Day 12
+
+**Difficulty: 7/10 ★★★★★★★☆☆☆**
+
+**Time: 3 hrs**
+
+**Run Time: 30ms**
+
+I spent awhile trying to move the Grid iteration in the shared lib, but couldn't figure out `impl Iterator` and `impl IntoIterator` where it required both a lifetime and a generic type.  I did a custom iterator last year, but I think it didn't have either of those two issues.  I couldn't figure out borrowing with a generic type in the Iterator definition.
+
+Anyway, I did move `DIRS` to the lib, as it was imported multiple times.
+
+I also tried to use some kind of flood fill algorithm like I did in [2022, day 18](https://github.com/bozdoz/advent-of-code-2022/blob/main/18/cubes.go), though I spent more time trying to use a recursive closure that mutated data ([but failed trying these out](https://stackoverflow.com/questions/16946888/is-it-possible-to-make-a-recursive-closure-in-rust)).  I instead opted for a recursive function, though the parameters got annoying to constantly pass.
+
+```rust
+fn flood(
+    grid: &Grid,
+    cell: (isize, isize),
+    check: &char,
+    visited: &mut HashSet<(isize, isize)>
+) -> (usize, usize) {
+```
+
+I don't think I achieved anything cool today, or tried anything new other than the above (which I failed at).
+
+To solve part 2 I made an algorithm modeled after [this video I saw on reddit](https://www.reddit.com/media?url=https%3A%2F%2Fpreview.redd.it%2F16speesmxh6e1.gif%3Fwidth%3D1280%26format%3Dmp4%26s%3De8ff9cd627ee7cd8e5186fffe16c49f466148dc6).
+
+I just found the code annoying to write today.  Many instances of the compiler complaining about having too many mutable or too many borrows or borrows with mutable, etc.
+
+Somehow, I wasn't able to do this (which I often try): 
+
+```rust
+let mut visited = HashSet::new();
+
+for (r, row) in grid.cells.iter().enumerate() {
+    for (c, cell) in row.iter().enumerate() {
+        let coords = (r as isize, c as isize);
+        
+        if visited.contains(&coords) {
+            continue;
+        }
+```
+
+Because I was writing to `visited` later.  I can't read it and write to it, even though it seems like a straight forward algorithm.
+
+However, somehow I was able to do this:
+
+```rust
+let mut found: HashSet<(isize, isize)> = HashSet::new();
+for cell in region {
+    if found.contains(cell) {
+        continue;
+    }
+    // ...
+    found.insert(*cell);
+```
+
+Why was that allowed!?  It's somehow not the same, but it definitely looks like it at a glance.
+
+I did like this quick logic for getting adjacent directions:
+
+```rust
+// if top, go left, then right...
+let left = (missing_dir.1, missing_dir.0);
+let right = (-missing_dir.1, -missing_dir.0);
+```
+
+`left` and `right` are subtitutes but decent examples of what it's doing (if the direction is `top`): reversing the tuple, and adding minus to one of them.
+
+Otherwise, a lot of code.  Both parts worked surprisingly well without any bugs at all.  My only struggles today was with the compiler.
+
 ### Day 11
 
 **Difficulty: 5/10 ★★★★★☆☆☆☆☆**

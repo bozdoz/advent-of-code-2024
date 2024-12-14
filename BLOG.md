@@ -1,5 +1,67 @@
 # What Am I Learning Each Day?
 
+### Day 13
+
+**Difficulty: 6/10 ★★★★★★☆☆☆☆**
+
+**Time: 3 hrs**
+
+**Run Time: 330µs**
+
+I never see these linear algebra problems coming and I can't remember any of it from school.
+
+Had some fun implementing math operations for a (usize, usize):
+
+```rust
+struct Point(usize, usize);
+
+impl Add for Point {
+    type Output = Self;
+
+    fn add(self, rhs: Self) -> Self::Output {
+        Point(self.0 + rhs.0, self.1 + rhs.1)
+    }
+}
+
+impl Div for Point {
+    type Output = Self;
+
+    fn div(self, rhs: Self) -> Self::Output {
+        Point(self.0 / rhs.0, self.1 / rhs.1)
+    }
+}
+
+impl Mul<usize> for Point {
+    type Output = Self;
+    fn mul(self, rhs: usize) -> Self::Output {
+        Point(self.0 * rhs, self.1 * rhs)
+    }
+}
+
+impl PartialOrd for Point {
+    fn gt(&self, other: &Self) -> bool {
+        self.0 > other.0 && self.1 > other.1
+    }
+    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
+        if *self > *other {
+            return Some(Ordering::Greater);
+        }
+        None
+    }
+}
+```
+
+This implements (respectively):
+
+```
+(usize, usize) + (usize, usize)
+(usize, usize) / (usize, usize)
+(usize, usize) * usize
+(usize, usize) > (usize, usize)
+```
+
+First solution I tried to work my way backward from maximum B tokens to maximum A tokens, and it worked fine for Part A.  I looked up an intersection equation online after seeing the recommendation on Reddit, by `u/CorvusCalvaria`.
+
 ### Day 12
 
 **Difficulty: 7/10 ★★★★★★★☆☆☆**

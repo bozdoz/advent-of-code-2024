@@ -1,6 +1,4 @@
-#![allow(unused)]
-
-use std::{ collections::HashSet, fs, hash::Hash, time::Instant };
+use std::{ collections::HashSet, fs, time::Instant };
 use lib::{ get_part, Grid, DIRS };
 
 // needs external recursive function, as I can't have a recursive closure
@@ -15,9 +13,7 @@ fn flood(
     }
 
     if let Some(item) = grid.get(cell) {
-        if item == check {
-            visited.insert(cell);
-        }
+        visited.insert(cell);
 
         // update area
         let mut area = 1;
@@ -65,8 +61,6 @@ fn part_one(grid: &Grid) -> usize {
             }
             let val = flood(grid, coords, cell, &mut visited);
 
-            // println!("{cell}: {} {}", val.0, val.1);
-
             total_price += val.0 * val.1;
         }
     }
@@ -87,19 +81,15 @@ fn collect_cells<'a>(
         return region;
     }
 
-    if let Some(item) = grid.get(cell) {
-        if item == check {
-            region.insert(cell);
-        }
+    if grid.get(cell) == Some(check) {
+        region.insert(cell);
 
         // check all dirs for same values
         for dir in DIRS {
             let next = (cell.0 + dir.0, cell.1 + dir.1);
 
-            if let Some(other) = grid.get(next) {
-                if other == check {
-                    collect_cells(grid, next, check, visited, region);
-                }
+            if grid.get(next) == Some(check) {
+                collect_cells(grid, next, check, visited, region);
             }
         }
     }

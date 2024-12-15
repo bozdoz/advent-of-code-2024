@@ -1,5 +1,64 @@
 # What Am I Learning Each Day?
 
+### Day 14
+
+**Difficulty: 8/10 ★★★★★★★★☆☆**
+
+**Time: 4 hrs**
+
+**Run Time: ~2ms**
+
+I couldn't really figure out how to get the number for the Christmas Tree image:
+
+![christmas tree](./day-14/part_two.png);
+
+So what I did was print out ~200 snapshots and scanned them quickly to see when the robots aligned vertically and horizontally: it was 22 and 125 vertically, and 79 and 180 horizontally.  I saw the difference was identical to height and width (maybe obviously though wasn't obvious to me).  I changed part_two from the chinese remainder theorem (couldn't get it to work), to just iterate to infinity and find when the cycles meet:
+
+```rust
+fn part_two() -> usize {
+    // 22 is when it appeared vertically centered
+    // 79 is when it appeared horizontally centered
+    // the other numbers are height and width (when it wraps)
+    for time in 0.. {
+        if time % 103 == 22 && time % 101 == 79 {
+            return time;
+        }
+    }
+    0
+}
+```
+
+I did eventually get a working chinese remainder theorem, but it feels intense, and ChatGPT got it wrong multiple times.  It was only after I found the answer myself that I could corect it enough to get it to help me finish the functions.
+
+Honestly my solution is briefer, and I'd take it anyday over fighting to grasp modular inverses.
+
+I don't think I needed to define a `Point` today.  That was probably overkill.
+
+Defining the `World` I thought was worth while.  I liked defining `after_time` for each, to help wrap the robots around the "world".
+
+```rust
+impl World<'_> {
+    fn after(&self, time: usize) -> Vec<Robot> {
+        self.robots
+            .iter()
+            .map(|r| {
+                Robot {
+                    position: self.wrap(r.after(time)),
+                    ..*r // first time spreading?
+                }
+            })
+            .collect()
+    }
+```
+
+This was my first time spreading structs, and I didn't like the syntax at all (relative to JavaScript).
+
+I had to define `Display` in order to print out the world and see the robot locations.
+
+I used a display `fill` in order to swap between how AOC printed the maps, and how I wanted to print it for part 2 with higher contrast.
+
+I used regular expressions again today to parse the input data.  I ran it without `^` and `$` so it would capture multilines.
+
 ### Day 13
 
 **Difficulty: 6/10 ★★★★★★☆☆☆☆**

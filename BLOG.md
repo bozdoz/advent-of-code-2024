@@ -1,5 +1,92 @@
 # What Am I Learning Each Day?
 
+### Day 15
+
+**Difficulty: 7/10 ★★★★★★★☆☆☆**
+
+**Time: 3 hrs**
+
+**Run Time: ~7ms**
+
+I feel like I went overboard with structs.
+
+I also made a kick-ass macro for all future use:
+
+```rust
+// token trees below
+macro_rules! tup {
+    ($lhs:tt $op:tt $rhs:tt) => {
+        {
+            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
+        }
+    };
+}
+```
+
+All this because I hate updating point-like tuples with simple math.  So now I can do:
+
+```rust
+tup!((2,2) + (1,1));
+tup!((2,2) - (1,1));
+```
+
+Instead of:
+
+```rust
+(2 + 1, 2 + 1)
+```
+
+I cloned the map struct in each part today, and mutated the maps in multiple methods, including part two's `double_the_width`, which just updates the width and cell_width, filling in all the boxes everywhere.
+
+I really liked the match statement for part 1 (also used in part 2 for horizontal moves):
+
+```rust
+let mut found_boxes = false;
+loop {
+    pos.0 += dir.0;
+    pos.1 += dir.1;
+
+    match self.grid.get(&pos) {
+        None => {
+            // can move
+            break;
+        }
+        Some(Thing::Box) | Some(Thing::LBox) | Some(Thing::RBox) => {
+            // might be able to move
+            found_boxes = true;
+            continue;
+        }
+        Some(Thing::Wall) => {
+            // can't move
+            return;
+        }
+    }
+}
+```
+
+The breakdown between `break`, `continue`, and `return` felt like I covered everything.
+
+I tried to return an iterator for the gps coordinates instead of a collection but it made for awkward code:
+
+```rust
+fn get_gps_coords(self) -> impl Iterator<Item = isize> {
+    // part 1 counts box; 2 counts LBox
+    let find = if self.cell_width == 1 { Thing::Box } else { Thing::LBox };
+
+    // first `move`?
+    self.grid.into_iter().filter_map(move |((r, c), thing)| {
+        if thing == find {
+            return Some(r * 100 + c);
+        }
+        // unbelievable
+        None::<isize>
+    })
+}
+```
+
+I couldn't use `&self` in the method, I had to use `into_iter` and I had to use `move`.  Also, I have no idea why I had to type the `None` as `None::<isize>` (looks like I can remove that now, for some reason).  I think it's fine since it's the last method I need to call in the function; otherwise I think it wouldn't work.
+
+
 ### Day 14
 
 **Difficulty: 8/10 ★★★★★★★★☆☆**

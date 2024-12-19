@@ -1,5 +1,109 @@
 # What Am I Learning Each Day?
 
+### Day 65
+
+**Difficulty: 8/10 ★★★★★★★★☆☆**
+
+**Time: ~6 hrs**
+
+**Run Time: ~500ms**
+
+I seem to have completely forgot how to do dijkstra's algo.
+
+I seem to need to use a priority queue, because we need to find the quickest paths first.  If I swapped these, I would get a completely different answer:
+
+```rust
+// let mut heap = vec![];
+   let mut heap = BinaryHeap::new();
+```
+
+Also I keep forgetting that dijkstra's keeps track of visited nodes globally, not per state.  So State (in part 1) can just be:
+
+```rust
+#[derive(PartialEq, Eq)]
+struct State {
+    // pos, direction
+    current: (isize, usize),
+    cost: usize,
+}
+```
+
+This may have been my first actual dijkstra in rust.
+
+This time I tried a grid as a `Vec<u8>`, which actually worked pretty well (except for printing):
+
+```rust
+struct Maze {
+    start: isize,
+    end: isize,
+    // try something different
+    cells: Vec<u8>,
+    width: usize,
+}
+
+const SPACE: u8 = b'.';
+const END: u8 = b'E';
+
+fn _print_maze(maze: &Maze) {
+    // use chunks to simulate 2d grid
+    for c in maze.cells.chunks(maze.width) {
+        println!(
+            "{:?}",
+            c
+                .iter()
+                .map(|&x|
+                    char
+                        ::from_u32(x as u32)
+                        .unwrap()
+                        .to_string()
+                )
+                .collect::<Vec<_>>()
+                .join("")
+        );
+    }
+}
+```
+
+Debugging was a little awkward as I wanted to print out an 'X' in a given cell:
+
+```rust
+fn _print_x_in_maze(maze: &Maze, cell: isize) {
+    // converts cell index to (r,c)
+    let find = ((cell as usize) / maze.width, (cell as usize) % maze.width);
+    for (r, row) in maze.cells.chunks(maze.width).enumerate() {
+        let mut out: Vec<String> = vec![];
+        for (c, val) in row.iter().enumerate() {
+            if (r, c) == find {
+                out.push("X".to_string());
+            } else {
+                out.push(
+                    char
+                        ::from_u32(*val as u32)
+                        .unwrap()
+                        .to_string()
+                );
+            }
+        }
+        println!("{}", out.join(""));
+    }
+}
+```
+
+I find these ouputs so odd, stil; (`&str` to `String`, and `u8` to `char`):
+
+```rust
+out.push("X".to_string());
+
+out.push(
+    char
+        ::from_u32(*val as u32)
+        .unwrap()
+        .to_string()
+);
+```
+
+Surprisingly I actually didn't need to track the walls at all.
+
 ### Day 15
 
 **Difficulty: 7/10 ★★★★★★★☆☆☆**

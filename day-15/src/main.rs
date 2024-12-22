@@ -1,5 +1,5 @@
 use std::{ collections::{ HashMap }, fmt::Display, fs, time::Instant };
-use lib::get_part;
+use lib::{ get_part, tup };
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Thing {
@@ -15,15 +15,6 @@ struct Map {
     width: usize,
     height: usize,
     cell_width: usize,
-}
-
-// token trees below
-macro_rules! tup {
-    ($lhs:tt $op:tt $rhs:tt) => {
-        {
-            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
-        }
-    };
 }
 
 impl Map {

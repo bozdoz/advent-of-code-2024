@@ -83,3 +83,39 @@ impl<T> Grid<T> {
         Some(&self.cells[pos.0 as usize][pos.1 as usize])
     }
 }
+
+// token trees below
+#[macro_export]
+macro_rules! tup {
+    // unfortunate; can't use `state.position` as a `tt`
+    ($lhs:expr, $op:tt, $rhs:expr) => {
+        {
+            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
+        }
+    };
+    ($lhs:tt $op:tt $rhs:tt) => {
+        {
+            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
+        }
+    };
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_tup_add() {
+        assert_eq!(tup!((1, 2) + (2, 3)), (3, 5));
+    }
+
+    #[test]
+    fn test_struct_mul() {
+        struct State {
+            position: (isize, isize),
+        }
+        let a = State { position: (3, 5) };
+
+        assert_eq!(tup!(a.position, *, (2, 3)), (6, 15));
+    }
+}

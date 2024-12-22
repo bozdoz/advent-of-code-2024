@@ -293,8 +293,9 @@ mod tests {
         assert_eq!(ans, 8159);
     }
 
-    // run with `cargo test two -- --nocapture`
+    // run with `cargo test two -- --nocapture --include-ignored`
     #[test]
+    #[ignore = "CI doesn't have input, and this was just to display repeating patterns"]
     fn test_part_two() {
         let data = fs::read_to_string("./src/input.txt").unwrap();
 

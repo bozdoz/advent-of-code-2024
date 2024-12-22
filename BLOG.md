@@ -1,5 +1,54 @@
 # What Am I Learning Each Day?
 
+### Day 18
+
+**Difficulty: 2/10 ★★☆☆☆☆☆☆☆☆**
+
+**Time: ~30 min**
+
+**Run Time: ~2s**
+
+This seemed like a rehash of other days: just dijkstra for part 1, and iterate part 1 until we couldn't get an answer (slower I think using dijkstra, but maybe not).
+
+It wasn't worth being smart about part 2, where being lazy only cost me 2 seconds of runtime.
+
+I think it was my first time using `format!`:
+
+```rust
+fn part_two(maze: &Maze, start: usize) -> String {
+    // repeat part one until we get '0'
+    for i in start.. {
+        if part_one(maze, i) == 0 {
+            let pos = maze.bytes[i - 1];
+            return format!("{},{}", pos.0, pos.1);
+        }
+    }
+    "".to_string()
+}
+```
+
+Also I moved my own `tup!` macro into the lib file:
+
+```rust
+// token trees below
+#[macro_export]
+macro_rules! tup {
+    // unfortunate; can't use `state.position` as a `tt`
+    ($lhs:expr, $op:tt, $rhs:expr) => {
+        {
+            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
+        }
+    };
+    ($lhs:tt $op:tt $rhs:tt) => {
+        {
+            ($lhs.0 $op $rhs.0, $lhs.1 $op $rhs.1)
+        }
+    };
+}
+```
+
+So now I can use `state.position` as a tuple, even though it is `3` tokens.
+
 ### Day 17
 
 **Difficulty: 8/10 ★★★★★★★★☆☆**

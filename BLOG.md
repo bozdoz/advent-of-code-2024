@@ -1,6 +1,104 @@
 # What Am I Learning Each Day?
 
-### Day 65
+### Day 17
+
+**Difficulty: 8/10 ★★★★★★★★☆☆**
+
+**Time: ~6 hrs**
+
+**Run Time: ~1ms**
+
+I can never figure these ones out. I remember doing something like this for [day 24 2021](https://adventofcode.com/2021/day/24) in [Go](https://github.com/bozdoz/advent-of-code-2021/blob/d5a05a356413754afb38b7fdddf9aa5c28492d68/24/monad.go#L71)
+
+And I tried to model it the same way:
+
+```go
+type Instruction interface {
+	Exec(a *int, b int)
+	String() string
+}
+
+type Command struct {
+	left, right string
+}
+
+type Inp struct {
+	Command
+}
+
+func (inp *Inp) Exec(a *int, b int) {
+	*a = b
+}
+
+type Add struct {
+	Command
+}
+
+func (add *Add) Exec(a *int, b int) {
+	*a += b
+}
+```
+
+But I couldn't easily do this in Rust:
+
+```rust
+trait Instruction {
+    fn run(program: &mut Program, operand: usize) -> ();
+}
+
+struct Bxl {}
+
+impl Instruction for Bxl {
+    fn run(program: &mut Program, operand: usize) {
+        let lhs = program.b;
+        let rhs = operand;
+
+        program.b = lhs ^ rhs;
+    }
+}
+```
+
+The trait became meaningless because I couldn't associate it with the Program struct (it wasn't actually much better in Go).
+
+So that day was to find a number from 0 to 9^14, and today was find a number somewhere around 8^16.
+
+In 2021 I apparently successfully bruteforced the answer within 12 minutes, by removing all the ridiculous structs and just did plain math in a single function.  This year I just tried to brute force it without any optimizations (I did try some threads).
+
+I found a repo I could understand and modeled my answer after this: https://github.com/maneatingape/advent-of-code-rust/blob/main/src/year2024/day17.rs
+
+Otherwise, today I went far too hard on structs.  The parser was awful, though it was the first time I used the question mark returns:
+
+```rust
+fn run(&mut self) -> Option<()> {
+    loop {
+        // first time using question marks
+        let inst: &usize = self.input.get(self.pointer)?;
+        // dereference to avoid borrowing as immutable
+        let next: usize = *self.input.get(self.pointer + 1)?;
+
+        // bump pointer by 2
+        self.pointer += 2;
+
+        (match inst {
+            0 => Adv::run,
+            1 => Bxl::run,
+            2 => Bst::run,
+            3 => Jnz::run,
+            4 => Bxc::run,
+            5 => Out::run,
+            6 => Bdv::run,
+            7 => Cdv::run,
+            _ => panic!("what instruction is this? {inst}"),
+        })(self, next);
+    }
+}
+```
+
+This was mostly to avoid repetitive checking for values.
+
+Part 2 was inevitably a DFS by running every three bits through the program, shifting by 3 bits, pushing all potential answers to a vector and then returning the minimum.  My understanding of it is that the output is always modulo 8 which would be the first 3 bits of a number, so only the first three bits of A were ever going to impact the output.
+
+### Day 16
 
 **Difficulty: 8/10 ★★★★★★★★☆☆**
 

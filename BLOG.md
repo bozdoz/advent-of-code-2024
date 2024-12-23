@@ -1,5 +1,21 @@
 # What Am I Learning Each Day?
 
+### Day 19
+
+**Difficulty: 5/10 ★★★★★☆☆☆☆☆**
+
+**Time: ~1 hr**
+
+**Run Time: ~30ms**
+
+Tried another Dijkstra.  Worked fine for part 1, but not part 2.
+
+Tried finding shortcuts in Part 2, like tracking the largest possible patterrn; that seemed to halve the time.
+
+Depth-first-search seemed like a must, and adding a memo was necessary for that to work.
+
+Kind of annoying that I didn't need the bfs at all, as the dfs works great for both.
+
 ### Day 18
 
 **Difficulty: 2/10 ★★☆☆☆☆☆☆☆☆**

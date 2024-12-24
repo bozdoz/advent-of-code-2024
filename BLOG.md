@@ -1,5 +1,90 @@
 # What Am I Learning Each Day?
 
+### Day 20
+
+**Difficulty: 6/10 ★★★★★★☆☆☆☆**
+
+**Time: ~3 hr**
+
+**Run Time: ~150ms**
+
+I made a mess out of using that `Vec<u8>` today, since I wrote that extremely naive getter method for it in Day 16:
+
+```rust
+fn move_from_cell(&self, dir: &(isize, isize), cell: isize) -> Option<isize> {
+    let next = if dir.0 == 0 { cell + dir.1 } else { cell + dir.0 * (self.width as isize) };
+
+    match self.cells[next as usize] {
+        SPACE | END => { Some(next) }
+        _ => { None }
+    }
+}
+```
+
+Today I had to rework it to basically check the x,y coord if it's valid and convert back into a vector index:
+
+```rust
+// something like (-3, 15) should have been off the map, but wasn't
+fn move_from_cell(&self, dir: &(isize, isize), cell: isize) -> Option<isize> {
+    // can't figure out the math, so converting to point
+    let p = (cell / (self.width as isize), cell % (self.width as isize));
+
+    let next = tup!(p + dir);
+
+    if next.0 < 1 || next.1 < 1 || next.1 >= (self.width as isize) {
+        return None;
+    }
+
+    // point back to cell index
+    let next = next.0 * (self.width as isize) + next.1;
+
+    // usng .get because *2 could overflow in any direction
+    match self.cells.get(next as usize) {
+        Some(&SPACE) | Some(&END) => { Some(next) }
+        _ => { None }
+    }
+}
+```
+
+I suppose I still avoided a hashmap lookup, but I'd bet there are better ways to do that.
+
+I was able to make a list of cells in a given manhattan distance, though it too might be a bit wasteful:
+
+```rust
+// get all direction diffs
+let mut manhattans = vec![];
+
+// had these wrong, since I didn't abs them in nested checks
+for i in -cheat_dist..=cheat_dist {
+    for j in -cheat_dist..=cheat_dist {
+        if i.abs() + j.abs() <= cheat_dist {
+            // ignore adjacent walls with <2
+            if !(i.abs() < 2 && j.abs() < 2) {
+                manhattans.push((i, j));
+            }
+        }
+    }
+}
+```
+
+Thankfully my print function helped a lot for debugging.
+
+This was my first time using a `find_map`:
+
+```rust
+// move through the single-path track
+let next = DIRS.iter()
+    .find_map(|dir| {
+        self.move_from_cell(&dir, current).filter(|&val| {
+            // no cheat in this direction
+            // check if unvisited
+            // otherwise ignore
+            times[val as usize] == -1
+        })
+    })
+    .unwrap();
+```
+
 ### Day 19
 
 **Difficulty: 5/10 ★★★★★☆☆☆☆☆**

@@ -18,6 +18,10 @@ if [ -z $NEW_DAY ]; then
   exit 1
 fi
 
+# get session cookie; make sure you create this with:
+# COOKIE="Cookie: session=some-cookie-here"
+source ./session.sh
+
 cargo new "day-${NEW_DAY}" || usage
 
 cd "day-${NEW_DAY}"
@@ -26,6 +30,8 @@ cargo add --path ../lib
 
 # create input files for testing and solving
 touch ./src/example.txt
+curl "https://adventofcode.com/2024/day/${NEW_DAY}/input" --compressed -H "${COOKIE}" > ./src/input.txt
+
 touch ./src/input.txt
 
 cat > src/main.rs <<EOF

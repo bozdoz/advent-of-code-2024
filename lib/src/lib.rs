@@ -76,7 +76,7 @@ impl Grid<u32> {
 // where T: Copy + Clone
 impl<T> Grid<T> {
     pub fn get(&self, pos: (isize, isize)) -> Option<&T> {
-        if pos.0 == -1 || pos.1 == -1 || pos.0 >= self.height || pos.1 >= self.width {
+        if pos.0 < 0 || pos.1 < 0 || pos.0 >= self.height || pos.1 >= self.width {
             return None;
         }
 

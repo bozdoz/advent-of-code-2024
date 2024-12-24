@@ -8,3 +8,7 @@ input.txt
 
 # Mac OS
 .DS_Store
+
+# store your AOC session cookie here
+# COOKIE="Cookie: session=some-cookie-here"
+session.sh

@@ -32,6 +32,7 @@ pub const DIRS: [(isize, isize); 4] = [
     (0, -1), // left
 ];
 
+#[derive(Debug)]
 pub struct Grid<T = char> {
     pub cells: Vec<Vec<T>>,
     pub height: isize,
@@ -81,6 +82,18 @@ impl<T> Grid<T> {
         }
 
         Some(&self.cells[pos.0 as usize][pos.1 as usize])
+    }
+
+    /** reduces all the nesting in enumerating rows and columns */
+    pub fn iter(&self) -> impl Iterator<Item = (usize, usize, &T)> {
+        self.cells
+            .iter()
+            .enumerate()
+            .flat_map(|(r, row)| {
+                row.iter()
+                    .enumerate()
+                    .map(move |(c, cell)| (r, c, cell))
+            })
     }
 }
 

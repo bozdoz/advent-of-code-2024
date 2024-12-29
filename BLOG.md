@@ -1,5 +1,146 @@
 # What Am I Learning Each Day?
 
+### Day 21
+
+**Difficulty: 9/10 ★★★★★★★★★☆**
+
+**Time: ~10 hr**
+
+**Run Time: ~1ms**
+
+Initially tried `A Star` for getting best paths from each key in each keypad, but it made for some bad paths.
+
+```rust
+#[derive(PartialEq, Eq)]
+struct State {
+    position: (isize, isize),
+    path: Vec<char>,
+    // a star include distance as proxy
+    distance_from_empty: usize,
+}
+
+impl Ord for State {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        // other.cmp(self) is min-heap
+        // self.cmp(other) is max-heap
+
+        // order by min path len, but max distance from empty
+        match other.path.len().cmp(&self.path.len()) {
+            Ordering::Equal => self.distance_from_empty.cmp(&other.distance_from_empty),
+            t => t,
+        }
+    }
+}
+```
+
+This actually worked fine for part 1, though I might have had to clean up a few paths manually afterwards.  
+
+Part 1 I got without losing too many days, but Part 2 was much more difficult.  Getting the correct paths for the keypads was the first frustration, but figuring out how to refactor to solve part 2 was more difficult (and I got help on Reddit, and from ChatGPT).  So, I had to figure out how to do it in depth-first-search, which meant a lot less mutable variables (didn't need `keypad.current` at all).  After figuring out how to make a `dfs` function that the compiler wouldn't complain about, the rest seemed simple.
+
+```rust
+// reworked this quite a bit: keypads is not mutable! (i.e. make it so we don't re-assign `.current`)
+fn dfs(
+    key: Vec<char>,
+    i: usize,
+    keypads: &Vec<Keypad>,
+    // TIL: why this is not `mut memo`: we don't need/want to reassign `memo`
+    memo: &mut HashMap<(Vec<char>, usize), usize>
+) -> usize {
+    // check if we're done
+    if i == keypads.len() - 1 {
+        return key.len();
+    }
+
+    // annoying clone here
+    let k = (key.clone(), i);
+
+    // did we do this before?
+    if memo.contains_key(&k) {
+        return *memo.get(&k).unwrap();
+    }
+
+    // get next
+    // refactored from Vec<char> to Vec<Vec<>>
+    // so we can take advantage of memoization
+    let next = keypads[i].move_sequence(&key);
+
+    let len = next
+        .into_iter()
+        .map(|p| dfs(p, i + 1, keypads, memo))
+        .sum();
+
+    // save to memo and return
+    memo.insert(k, len);
+
+    len
+}
+```
+
+For part one, we can return `Vec<char>` from `move_sequence`, but part two needs as much memoization as possible, so we chunk it up by sequences including the final `'A'`.
+
+I think today was the first time I used `extend` to extend a vector, which was a frustration all unto itself:
+
+```rust
+/**
+ * Move from A, to a bunch of places, then press A
+ * this is chunked into separate paths for memoization
+ */
+fn move_sequence(&self, keys: &Vec<char>) -> Vec<Vec<char>> {
+    let mut cur = 'A';
+    let mut path = vec![];
+
+    for &next in keys {
+        let mut inner = vec![];
+        if let Some(p) = self.map.get(&(cur, next)) {
+            inner.extend(p);
+            cur = next;
+        }
+        inner.push('A');
+
+        path.push(inner);
+    }
+
+    path
+}
+```
+
+I also wasn't sure if folding is better than creating a mutable vector:
+
+```rust
+// is fold better than declaring `let mut next_path`?
+// path gets updated for next keypad
+path = path.iter().fold(vec![], |mut acc, &p| {
+    // is there a better way to update and return Vec<char>?
+    if let Some(travelled) = pad.move_to(p) {
+        acc.extend(travelled);
+    }
+    // always push A
+    acc.push('A');
+    acc
+});
+```
+
+I also updated the `Grid` type in lib to more easily iterate the cells:
+
+```rust
+pub fn iter(&self) -> impl Iterator<Item = (usize, usize, &T)> {
+    self.cells
+        .iter()
+        .enumerate()
+        .flat_map(|(r, row)| {
+            row.iter()
+                .enumerate()
+                .map(move |(c, cell)| (r, c, cell))
+        })
+}
+```
+
+Which is probably the first time I've used `flat_map`, and this makes sense because I want a single iterator, and not a nested one.
+
+I still find the Iterator trait odd, both for the `impl` and the `Item =` parts:
+
+`impl Iterator<Item = (usize, usize, &T)>`
+
 ### Day 20
 
 **Difficulty: 6/10 ★★★★★★☆☆☆☆**

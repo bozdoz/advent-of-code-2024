@@ -1,5 +1,74 @@
 # What Am I Learning Each Day?
 
+### Day 22
+
+**Difficulty: 6/10 ★★★★★★☆☆☆☆**
+
+**Time: ~2 hr**
+
+**Run Time: ~12.5min**
+
+Terrible runtime, but not sure how to improve it at the moment: update, I can iterate each secret once and save each sequence to a larger hashmap.
+
+Today I tried to use `VecDeque`, though I swapped this out for bitwise operations after trying to optimize it. 
+
+Basically these were equivalent:
+
+```rust
+let mut last_four: VecDeque<i32> = VecDeque::new();
+
+last_four.push_back(diff);
+if i > 3 {
+    last_four.pop_front();
+}
+```
+
+Compared with:
+
+```rust
+const TWENTY_BITS: usize = (2usize).pow(20) - 1;
+
+let mut last_four: usize = 0;
+
+// push back
+last_four <<= 5;
+// push another
+last_four |= (9 + diff) as usize;
+// keep 20 bits
+last_four &= TWENTY_BITS;
+```
+
+The brute force idea I had was to iterate 4 times -9..=9, but also to narrow that view and try to remove invalid sequences:
+
+```rust
+for a in -8..=5 {
+    for b in -7..=6 {
+        if ((a + b) as i32).abs() > 9 {
+            continue;
+        }
+        for c in -6..=7 {
+            if ((b + c) as i32).abs() > 9 {
+                continue;
+            }
+            if ((a + b + c) as i32).abs() > 9 {
+                continue;
+            }
+            for d in -5..=8 {
+                if ((c + d) as i32).abs() > 9 {
+                    continue;
+                }
+                if ((b + c + d) as i32).abs() > 9 {
+                    continue;
+                }
+                if ((a + b + c + d) as i32).abs() > 9 {
+                    continue;
+                }
+```
+
+Which is a little bit crazy, but it worked well enough.
+
+Not a great day; didn't enjoy it, and didn't want to optimize it, outside of playing with binary.
+
 ### Day 21
 
 **Difficulty: 9/10 ★★★★★★★★★☆**

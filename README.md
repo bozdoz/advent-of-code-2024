@@ -18,4 +18,4 @@ New: `./createDay.sh 02`
 - [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
 - [Rust Playground](https://play.rust-lang.org/)
 - [Codeium](https://codeium.com/)
-
+- [ChatGPT](https://chatgpt.com/)

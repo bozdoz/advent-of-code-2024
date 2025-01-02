@@ -1,5 +1,38 @@
 # What Am I Learning Each Day?
 
+### Day 23
+
+**Difficulty: 3/10 ★★★☆☆☆☆☆☆☆**
+
+**Time: ~2 hr**
+
+**Run Time: ~43ms**
+
+I did all of this in [Rust Playground](https://play.rust-lang.org/).
+
+This seemed straight forward: linking all the networks together, spotting intersections, sorting, and counting them.
+
+I think I'm starting to understand when to use `into_iter` as opposed to `iter`: if you need the values to last longer, you need to own/copy/clone/take them with `into` as opposed to iterating references with `iter` (might not live long enough).
+
+This was my first time using `intersection`:
+
+```rust
+let mut biggest: HashMap<&&str, HashSet<&&str>> = HashMap::new();
+
+// check for intersections in all queues
+for (a, set) in biggest.iter() {
+    for b in set {
+        if a == b {
+            continue;
+        }
+        let other = &biggest[b];
+        let mut intersection = set.intersection(other).collect::<Vec<_>>();
+
+        intersection.sort();
+```
+
+So this gets the longest list of the links of each network and intersects them with every other to get a count and compare to find the largest list of linked networks (made sense in my head at the time, though I was worried/lucky that my logic was a bit naive).
+
 ### Day 22
 
 **Difficulty: 6/10 ★★★★★★☆☆☆☆**

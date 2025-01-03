@@ -19,3 +19,4 @@ New: `./createDay.sh 02`
 - [Rust Playground](https://play.rust-lang.org/)
 - [Codeium](https://codeium.com/)
 - [ChatGPT](https://chatgpt.com/)
+- [@maneatingape](https://github.com/maneatingape/advent-of-code-rust/tree/main/src/year2024)

@@ -1,5 +1,27 @@
 # What Am I Learning Each Day?
 
+### Day 24
+
+**Difficulty: 9/10 ★★★★★★★★★☆**
+
+**Time: ~6 hr**
+
+**Run Time: ~1ms**
+
+Part 1 was obviously fine, but I couldn't figure out part 2 at all.  I saw a bunch of hints to just visualize it, and I learned a bit of [DOT Language](https://graphviz.org/doc/info/lang.html), but couldn't find any obvious problems with my input values.
+
+I think it was a bit foolish of me again to use enums, but whatever.
+
+When I did this problem in rust playground I had no issues, but converting it to a struct, I had issues with lifetimes:
+
+```rust
+// TODO: figure out the difference between impl<'a>, System<'_>, and fn new<'a>
+impl<'a> System<'a> {
+    fn new(data: &'a str) -> Self {
+```
+
+I got part 2 completely by `maneatingape`, and though I can understand how someone could have got there, it's not clear to me that it would solve each input (example input obviously): so I wasn't able to create a test for part 2.
+
 ### Day 23
 
 **Difficulty: 3/10 ★★★☆☆☆☆☆☆☆**

@@ -1,5 +1,26 @@
 # What Am I Learning Each Day?
 
+### Day 25
+
+**Difficulty: 1/10 ★☆☆☆☆☆☆☆☆☆**
+
+**Time: ~15 min**
+
+**Run Time: ~700µs**
+
+Straight-forward, just parsed the input and check how many keys and locks don't sum past 5.  I converted a double loop into a bunch of iterable methods, just for fun:
+
+```rust
+// refactored as idiomatic rust
+tumbler.keys
+    .iter()
+    .flat_map(|k| tumbler.locks.iter().map(move |l| (k, l)))
+    .filter(|(k, l)| (0..5).all(|i| k[i] + l[i] < 6))
+    .count()
+```
+
+Looks way less readable.
+
 ### Day 24
 
 **Difficulty: 9/10 ★★★★★★★★★☆**

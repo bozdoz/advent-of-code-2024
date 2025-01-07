@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use std::{ collections::{ HashMap, HashSet }, fs, time::Instant };
 use lib::get_part;
 

@@ -11,6 +11,7 @@ struct Maze {
 
 const SPACE: u8 = b'.';
 const END: u8 = b'E';
+const START: u8 = b'S';
 
 impl Maze {
     fn new(data: &str) -> Self {
@@ -23,14 +24,14 @@ impl Maze {
             if width == 0 {
                 width = row.len();
             }
-            for (c, cell) in row.chars().enumerate() {
-                cells.push(cell as u8);
+            for (c, &cell) in row.as_bytes().iter().enumerate() {
+                cells.push(cell);
 
                 match cell {
-                    'S' => {
+                    START => {
                         start = (r * width + c) as isize;
                     }
-                    'E' => {
+                    END => {
                         end = (r * width + c) as isize;
                     }
                     _ => {}
@@ -176,22 +177,19 @@ fn part_one(maze: &Maze) -> usize {
     best
 }
 
-#[derive(PartialEq, Eq)]
+// isize -> i16 goes from ~450ms to ~270ms
+type FastestNum = i16;
+
+#[derive(PartialEq, Eq, Ord)]
 struct VisitedState {
     current: (isize, usize),
     cost: usize,
-    visited: Vec<isize>,
-}
-
-impl Ord for VisitedState {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        other.cost.cmp(&self.cost)
-    }
+    visited: Vec<FastestNum>,
 }
 
 impl PartialOrd for VisitedState {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
+        Some(other.cost.cmp(&self.cost))
     }
 }
 
@@ -199,13 +197,13 @@ fn part_two(maze: &Maze) -> usize {
     // let mut heap = vec![];
     let mut heap = BinaryHeap::new();
     let mut visited = HashSet::new();
-    let mut winners = vec![];
+    let mut winners = HashSet::new();
     let mut best = usize::MAX;
 
     heap.push(VisitedState {
         current: (maze.start, 1),
         cost: 0,
-        visited: vec![maze.start],
+        visited: vec![maze.start as FastestNum],
     });
 
     while let Some(state) = heap.pop() {
@@ -222,9 +220,11 @@ fn part_two(maze: &Maze) -> usize {
             if state.cost < best {
                 // new winners
                 best = state.cost;
-                winners = vec![state];
+                winners = HashSet::from_iter(state.visited.into_iter());
             } else if state.cost == best {
-                winners.push(state);
+                for s in state.visited {
+                    winners.insert(s);
+                }
             }
             continue;
         }
@@ -249,9 +249,10 @@ fn part_two(maze: &Maze) -> usize {
                 let dir_cost = if i == dir { 0 } else { 1000 };
                 // update cost according to step + possible direction change
 
-                let mut next_visited = state.visited.clone();
-
-                next_visited.push(next);
+                // visited.clone() -> with_capacity/extend improved from 275ms to 190ms
+                let mut next_visited = Vec::with_capacity(state.visited.len() + 1);
+                next_visited.extend_from_slice(&state.visited);
+                next_visited.push(next as FastestNum);
 
                 heap.push(VisitedState {
                     current: (next, i),
@@ -264,15 +265,7 @@ fn part_two(maze: &Maze) -> usize {
         visited.insert(state.current);
     }
 
-    let mut common = HashSet::new();
-
-    for winner in winners {
-        for cell in winner.visited {
-            common.insert(cell);
-        }
-    }
-
-    common.len()
+    winners.len()
 }
 
 fn main() {

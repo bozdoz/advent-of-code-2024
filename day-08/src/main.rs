@@ -4,16 +4,14 @@ use lib::{ get_part, Grid };
 fn get_antennas(grid: &Grid) -> HashMap<char, Vec<(isize, isize)>> {
     let mut antennas = HashMap::new();
 
-    for (r, row) in grid.cells.iter().enumerate() {
-        for (c, &cell) in row.iter().enumerate() {
-            if cell != '.' {
-                antennas
-                    .entry(cell)
-                    .and_modify(|e: &mut Vec<(isize, isize)>| {
-                        e.push((r as isize, c as isize));
-                    })
-                    .or_insert(vec![(r as isize, c as isize)]);
-            }
+    for (r, c, &cell) in grid.iter() {
+        if cell != '.' {
+            antennas
+                .entry(cell)
+                .and_modify(|e: &mut Vec<(isize, isize)>| {
+                    e.push((r as isize, c as isize));
+                })
+                .or_insert(vec![(r as isize, c as isize)]);
         }
     }
 

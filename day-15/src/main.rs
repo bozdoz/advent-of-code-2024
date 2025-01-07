@@ -1,4 +1,4 @@
-use std::{ collections::{ HashMap }, fmt::Display, fs, time::Instant };
+use std::{ collections::HashMap, fmt::Display, fs, time::Instant };
 use lib::{ get_part, tup };
 
 #[derive(Debug, Clone, Copy, PartialEq)]

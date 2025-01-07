@@ -82,7 +82,33 @@ So this gets the longest list of the links of each network and intersects them w
 
 **Time: ~2 hr**
 
-**Run Time: ~12.5min**
+**Run Time: ~~12.5min~~ 400ms**
+
+UPDATE:
+
+Got it around **400ms** after refactoring to get all sequences for all secrets.
+
+```rust
+for secret in secrets {
+    // get every sequence for every secret
+    for_each_sequence(secret, |seq, price| {
+        map.entry(seq)
+            .and_modify(|x| {
+                *x += price;
+            })
+            .or_insert(price);
+    });
+}
+```
+
+I also needed to check if it was seen before:
+
+```rust
+if !seen.contains(&last_four) {
+    fun(last_four, current_price);
+    seen.insert(last_four);
+}
+```
 
 Terrible runtime, but not sure how to improve it at the moment: update, I can iterate each secret once and save each sequence to a larger hashmap.
 
@@ -393,7 +419,39 @@ Kind of annoying that I didn't need the bfs at all, as the dfs works great for b
 
 **Time: ~30 min**
 
-**Run Time: ~2s**
+**Run Time: ~~2s~~ ~~1s~~ 800ms**
+
+UPDATE: cut the time in half just by removing my custom struct in the min heap:
+
+```rust
+let mut heap: BinaryHeap<(usize, (isize, isize))> = BinaryHeap::new();
+
+// converting from struct State { cost, position } to (cost, (x, y)) was 2x faster
+heap.push((0, (0, 0)));
+```
+
+I was able to remove the Compare/Ordering implementations too; so, not sure which made it faster; but thankfully this works so long as the cost appears as the first item in the tuple, and the goal is a min heap (Or maybe not; apparently this doesn't work in Day 16, even though it seems to be the exact same structure).
+
+Saved another 100-200ms by moving the pathfinding directly into part two, and clearing an existing hashmap, rather than continuing to redefine them:
+
+```rust
+// moving this outside and using .clear() saved 100ms
+let mut visited = HashSet::new();
+let mut heap = BinaryHeap::new();
+
+// each iteration adds a new obstacle
+// we should be able to check if a new obstacle hit our path
+'throwingsnow: for i in start..maze.bytes.len() {
+    let obs = &maze.bytes[i];
+
+    obstacles.insert(obs);
+
+    visited.clear();
+    heap.clear();
+
+    // maybe should start somewhere else?
+    heap.push((0, (0, 0)));
+```
 
 This seemed like a rehash of other days: just dijkstra for part 1, and iterate part 1 until we couldn't get an answer (slower I think using dijkstra, but maybe not).
 
@@ -540,7 +598,50 @@ Part 2 was inevitably a DFS by running every three bits through the program, shi
 
 **Time: ~6 hrs**
 
-**Run Time: ~500ms**
+**Run Time: ~~500ms~~ ~~275ms~~ 190ms**
+
+UPDATE: Changed `Vec<isize>` to `Vec<i16>` and improved speed from 500ms to 275ms:
+
+```rust
+#[derive(PartialEq, Eq, Ord)]
+struct VisitedState {
+    current: (isize, usize),
+    cost: usize,
+    // isize -> i16 goes from ~450ms to ~270ms
+    visited: Vec<i16>,
+}
+```
+
+I think this is due to cloning the `visited` vector, and the amount of capacity it's probably calculating each time:
+
+```rust
+let mut next_visited = state.visited.clone();
+
+next_visited.push(next as i16);
+
+heap.push(VisitedState {
+    current: (next, i),
+    cost: state.cost + 1 + dir_cost,
+    visited: next_visited,
+});
+```
+
+UPDATE again! I've changed the `clone()` to improve from 275ms to 190ms:
+
+```rust
+let mut next_visited = Vec::with_capacity(state.visited.len() + 1);
+next_visited.extend_from_slice(&state.visited);
+next_visited.push(next as FastestNum);
+```
+
+I also typed `FastestNum`:
+
+```rust
+// isize -> i16 goes from ~450ms to ~270ms
+type FastestNum = i16;
+```
+
+Which works great.
 
 I seem to have completely forgot how to do dijkstra's algo.
 

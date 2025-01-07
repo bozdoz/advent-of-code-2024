@@ -1,4 +1,3 @@
-#![allow(unused)]
 use std::{ time::Instant, fs };
 use lib::get_part;
 use regex::Regex;

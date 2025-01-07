@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use std::{ time::Instant, fs };
 use lib::{ get_part, Grid };
 
@@ -22,38 +20,31 @@ const SEARCH: &'static [char] = &['M', 'A', 'S'];
 fn part_one(grid: &Grid) -> usize {
     let mut count = 0;
 
-    for (r, row) in grid.cells.iter().enumerate() {
-        for (c, &cell) in row.iter().enumerate() {
-            if cell == 'X' {
-                let r = r as isize;
-                let c = c as isize;
+    for (r, c, &cell) in grid.iter() {
+        if cell == 'X' {
+            let r = r as isize;
+            let c = c as isize;
 
-                for dir in DIRECTIS {
-                    let mut nextr = r;
-                    let mut nextc = c;
+            for dir in DIRECTIS {
+                let mut nextr = r;
+                let mut nextc = c;
 
-                    for &ch in SEARCH {
-                        nextr += dir.0;
-                        nextc += dir.1;
+                for &ch in SEARCH {
+                    nextr += dir.0;
+                    nextc += dir.1;
 
-                        // first time the formatter has done this to me
-                        if
-                            nextr == -1 ||
-                            nextc == -1 ||
-                            nextr >= grid.height ||
-                            nextc >= grid.width
-                        {
-                            break;
+                    // first time the formatter has done this to me
+                    if nextr == -1 || nextc == -1 || nextr >= grid.height || nextc >= grid.width {
+                        break;
+                    }
+
+                    if grid.cells[nextr as usize][nextc as usize] == ch {
+                        if ch == 'S' {
+                            // we did it!
+                            count += 1;
                         }
-
-                        if grid.cells[nextr as usize][nextc as usize] == ch {
-                            if ch == 'S' {
-                                // we did it!
-                                count += 1;
-                            }
-                        } else {
-                            break;
-                        }
+                    } else {
+                        break;
                     }
                 }
             }

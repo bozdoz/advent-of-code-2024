@@ -22,48 +22,27 @@ impl Maze {
     }
 }
 
-#[derive(Debug, PartialEq, Eq)]
-struct State {
-    cost: usize,
-    position: (isize, isize),
-}
-
-impl Ord for State {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        // other.cmp(self) is min-heap
-        other.cost.cmp(&self.cost)
-    }
-}
-
-impl PartialOrd for State {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
 fn part_one(maze: &Maze, fallen: usize) -> usize {
     let obstacles: HashSet<&(isize, isize)> = HashSet::from_iter(maze.bytes.iter().take(fallen));
 
     let mut visited = HashSet::new();
     let mut heap = BinaryHeap::new();
 
-    heap.push(State {
-        cost: 0,
-        position: (0, 0),
-    });
+    // converting from struct State { cost, position } to (cost, (x, y)) was 2x faster
+    heap.push((0, (0, 0)));
 
     let mut steps = 0;
     let end = (maze.size, maze.size);
     let bounds = 0..=maze.size;
 
-    while let Some(state) = heap.pop() {
-        if visited.contains(&state.position) {
+    while let Some((cost, position)) = heap.pop() {
+        if visited.contains(&position) {
             continue;
         }
 
-        if state.position == end {
+        if position == end {
             // done
-            steps = state.cost;
+            steps = cost;
             break;
         }
 
@@ -71,20 +50,17 @@ fn part_one(maze: &Maze, fallen: usize) -> usize {
         // get next states
         for dir in DIRS {
             // needs commas
-            let next = tup!(state.position, +, dir);
+            let next = tup!(position, +, dir);
 
             // check bounds & obsacles
             if !bounds.contains(&next.0) || !bounds.contains(&next.1) || obstacles.contains(&next) {
                 continue;
             }
 
-            heap.push(State {
-                cost: state.cost + 1, // one more step
-                position: next,
-            });
+            heap.push((cost + 1, next));
         }
 
-        visited.insert(state.position);
+        visited.insert(position);
     }
 
     steps
@@ -92,13 +68,77 @@ fn part_one(maze: &Maze, fallen: usize) -> usize {
 
 fn part_two(maze: &Maze, start: usize) -> String {
     // repeat part one until we get '0'
-    for i in start.. {
-        if part_one(maze, i) == 0 {
-            let pos = maze.bytes[i - 1];
-            return format!("{},{}", pos.0, pos.1);
+    // for i in start.. {
+    //     if part_one(maze, i) == 0 {
+    //         let pos = maze.bytes[i - 1];
+
+    //         println!("{i}");
+
+    //         return format!("{},{}", pos.0, pos.1);
+    //     }
+    // }
+    // "".to_string()
+
+    let mut obstacles: HashSet<&(isize, isize)> = HashSet::from_iter(maze.bytes.iter().take(start));
+
+    let end = (maze.size, maze.size);
+    let bounds = 0..=maze.size;
+
+    // moving this outside and using .clear() saved 100ms
+    let mut visited = HashSet::new();
+    let mut heap = BinaryHeap::new();
+
+    // each iteration adds a new obstacle
+    // we should be able to check if a new obstacle hit our path
+    'throwingsnow: for i in start..maze.bytes.len() {
+        let obs = &maze.bytes[i];
+
+        obstacles.insert(obs);
+
+        visited.clear();
+        heap.clear();
+
+        // maybe should start somewhere else?
+        heap.push((0, (0, 0)));
+
+        while let Some((cost, position)) = heap.pop() {
+            if visited.contains(&position) {
+                continue;
+            }
+
+            if position == end {
+                continue 'throwingsnow;
+            }
+
+            // println!("{:?}", state);
+            // get next states
+            for dir in DIRS {
+                // needs commas
+                let next = tup!(position + dir);
+
+                // check bounds & obsacles
+                if
+                    !(
+                        bounds.contains(&next.0) &&
+                        bounds.contains(&next.1) &&
+                        !obstacles.contains(&next)
+                    )
+                {
+                    continue;
+                }
+
+                heap.push((cost + 1, next));
+            }
+
+            visited.insert(position);
         }
+
+        println!("{i}");
+
+        return format!("{},{}", obs.0, obs.1);
     }
-    "".to_string()
+
+    return "FAIL".to_string();
 }
 
 fn main() {

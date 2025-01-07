@@ -53,16 +53,14 @@ fn part_one(grid: &Grid) -> usize {
     let mut total_price = 0;
 
     // tried to move this to lib, but can't figure out how to implement this as iterator
-    for (r, row) in grid.cells.iter().enumerate() {
-        for (c, cell) in row.iter().enumerate() {
-            let coords = (r as isize, c as isize);
-            if visited.contains(&coords) {
-                continue;
-            }
-            let val = flood(grid, coords, cell, &mut visited);
-
-            total_price += val.0 * val.1;
+    for (r, c, cell) in grid.iter() {
+        let coords = (r as isize, c as isize);
+        if visited.contains(&coords) {
+            continue;
         }
+        let val = flood(grid, coords, cell, &mut visited);
+
+        total_price += val.0 * val.1;
     }
 
     total_price
@@ -148,20 +146,18 @@ fn part_two(grid: &Grid) -> usize {
     let mut regions = vec![];
     let mut total_price = 0;
 
-    for (r, row) in grid.cells.iter().enumerate() {
-        for (c, cell) in row.iter().enumerate() {
-            let coords = (r as isize, c as isize);
+    for (r, c, cell) in grid.iter() {
+        let coords = (r as isize, c as isize);
 
-            let mut region = HashSet::new();
+        let mut region = HashSet::new();
 
-            collect_cells(grid, coords, cell, &visited, &mut region);
+        collect_cells(grid, coords, cell, &visited, &mut region);
 
-            // this is all crazy
-            for &v in region.iter() {
-                visited.insert(v);
-            }
-            regions.push(region);
+        // this is all crazy
+        for &v in region.iter() {
+            visited.insert(v);
         }
+        regions.push(region);
     }
 
     for region in regions.iter() {

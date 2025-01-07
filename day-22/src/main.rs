@@ -1,4 +1,4 @@
-use std::{ collections::VecDeque, fs, time::Instant };
+use std::{ collections::{ HashMap, HashSet, VecDeque }, fs, time::Instant };
 use lib::get_part;
 
 fn evolve(secret: usize) -> usize {
@@ -84,7 +84,7 @@ fn _prices_and_changes(secret: usize) -> [[i32; 4]; 10] {
 
 const TWENTY_BITS: usize = (2usize).pow(20) - 1;
 
-fn _print_seq(bin: &usize) {
+fn to_seq(bin: &usize) -> [isize; 4] {
     let mut bin = *bin;
     let mut seq = [0, 0, 0, 0];
 
@@ -94,13 +94,14 @@ fn _print_seq(bin: &usize) {
         bin >>= 5;
     }
 
-    println!("{seq:?}");
+    seq
 }
 
-fn sell_at_seq(secret: usize, seq: usize) -> usize {
+fn for_each_sequence(secret: usize, mut fun: impl FnMut(usize, usize)) {
     let mut last_four: usize = 0;
     let mut secret = secret;
     let mut current_price = secret % 10;
+    let mut seen = HashSet::new();
 
     for _ in 0..3 {
         secret = evolve(secret);
@@ -133,84 +134,44 @@ fn sell_at_seq(secret: usize, seq: usize) -> usize {
         // keep 20 bits
         last_four &= TWENTY_BITS;
 
-        if (last_four ^ seq) == 0 {
-            return current_price;
+        if !seen.contains(&last_four) {
+            fun(last_four, current_price);
+            seen.insert(last_four);
         }
     }
-
-    0
 }
 
 fn part_two(data: &str) -> usize {
-    let nums = data
+    let secrets = data
         .lines()
         .filter_map(|x| x.parse::<usize>().ok())
         .collect::<Vec<_>>();
 
+    let mut map = HashMap::new();
+
+    for secret in secrets {
+        // get every sequence for every secret
+        for_each_sequence(secret, |seq, price| {
+            map.entry(seq)
+                .and_modify(|x| {
+                    *x += price;
+                })
+                .or_insert(price);
+        });
+    }
+
+    // get best sequence:
     let mut best = 0;
     let mut best_seq = 0;
 
-    // TODO: this is brute force, but we could iterate all secrets once
-    // and save a hashmap of every sequence way faster
-    for a in -8..=5 {
-        for b in -7..=6 {
-            if ((a + b) as i32).abs() > 9 {
-                continue;
-            }
-            for c in -6..=7 {
-                if ((b + c) as i32).abs() > 9 {
-                    continue;
-                }
-                if ((a + b + c) as i32).abs() > 9 {
-                    continue;
-                }
-                for d in -5..=8 {
-                    if ((c + d) as i32).abs() > 9 {
-                        continue;
-                    }
-                    if ((b + c + d) as i32).abs() > 9 {
-                        continue;
-                    }
-                    if ((a + b + c + d) as i32).abs() > 9 {
-                        continue;
-                    }
-                    let seq = [a, b, c, d]
-                        .into_iter()
-                        // add 9 to convert -9 -> 9 to 0 -> 18
-                        .map(|x| (9 + x) as usize)
-                        // shift 5 to account for 18
-                        .reduce(|acc, cur| (acc << 5) | cur)
-                        .unwrap();
-
-                    let sum = nums
-                        .iter()
-                        .map(|&x| {
-                            // find four-price sequence in every number
-                            let ans = sell_at_seq(x, seq);
-
-                            ans
-                        })
-                        .sum();
-
-                    if sum > best {
-                        best = sum;
-                        best_seq = seq;
-                    }
-                }
-            }
+    for (&seq, &sum) in map.iter() {
+        if sum > best {
+            best = sum;
+            best_seq = seq;
         }
     }
 
-    let mut seq = [0, 0, 0, 0];
-
-    for i in (0..4).rev() {
-        let last_five = (best_seq & 0b11111) as isize;
-        // go back to -9..9
-        seq[i] = last_five - 9;
-        best_seq >>= 5;
-    }
-
-    println!("{best} {seq:?}");
+    println!("{:?}", to_seq(&best_seq));
 
     best
 }

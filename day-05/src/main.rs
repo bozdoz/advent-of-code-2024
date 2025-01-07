@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use std::{ time::Instant, fs };
 use lib::get_part;
 
@@ -71,7 +69,7 @@ fn part_one(manual: &SafetyManual) -> usize {
 fn part_two(manual: &SafetyManual) -> usize {
     let failed = manual.get_failed();
 
-    let mut failed_pages: Vec<_> = manual.pages
+    let failed_pages: Vec<_> = manual.pages
         .iter()
         .enumerate()
         .filter_map(|p| {

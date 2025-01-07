@@ -9,11 +9,9 @@ fn parts_one_and_two<T>(
     let mut states = vec![];
     let mut complete = HashSet::new();
 
-    for (r, row) in grid.cells.iter().enumerate() {
-        for (c, &cell) in row.iter().enumerate() {
-            if cell == 0 {
-                states.push(vec![(r, c)]);
-            }
+    for (r, c, &cell) in grid.iter() {
+        if cell == 0 {
+            states.push(vec![(r, c)]);
         }
     }
 
